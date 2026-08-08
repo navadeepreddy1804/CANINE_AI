@@ -1,0 +1,107 @@
+/* ========================================================
+   CanineAI Splash Screen Specific Styles
+   ======================================================== */
+
+.splash-body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg, #E0F2FE 0%, #F8FAFC 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Glassmorphic card overlay container */
+.glass-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 48px;
+  width: 90%;
+  max-width: 440px;
+  text-align: center;
+  transform: translateY(20px);
+  opacity: 0;
+  animation: card-appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes card-appear {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Monogram Logo Graphic (Animated) */
+.logo-container {
+  width: 96px;
+  height: 96px;
+  background-color: var(--primary);
+  border-radius: 20px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 8px 16px rgba(11, 110, 253, 0.2);
+  transform: scale(0.8);
+  opacity: 0;
+  animation: logo-entrance 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.2s;
+}
+
+@keyframes logo-entrance {
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.logo-letter {
+  color: #FFFFFF;
+  font-size: 44px;
+  font-weight: 800;
+  user-select: none;
+}
+
+/* Loading Linear Progress Indicator */
+.progress-bar-container {
+  width: 140px;
+  height: 4px;
+  background-color: rgba(11, 110, 253, 0.12);
+  border-radius: 2px;
+  margin: 16px auto 0 auto;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background-color: var(--primary);
+  border-radius: 2px;
+  transition: width 0.05s linear;
+}
+
+.loading-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-top: 16px;
+  min-height: 18px;
+}
+
+.splash-footer {
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 11px;
+  opacity: 0.7;
+}

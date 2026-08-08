@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanineAI - Clinical Alert Center</title>
+    
+    <!-- Bootstrap 5 CSS via Webjars -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Unified Design System Theme, Dashboard & Notification CSS -->
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link class="styles" rel="stylesheet" th:href="@{/css/notification.css}">
+</head>
+<body>
+
+    <!-- Top App Bar Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-2 sticky-top shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand font-weight-bold d-flex align-items-center" href="/dashboard">
+                <div th:replace="~{fragments/components :: logo(32)}"></div>
+                <span class="font-weight-black">CanineAI</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            
+            <!-- Left Sidebar Navigation -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar border-right vh-100 position-sticky pt-3 d-none d-md-block">
+                <div class="position-sticky sidebar-sticky">
+                    <ul class="nav flex-column gap-1">
+                        <li class="nav-item"><a class="nav-link text-dark text-start w-100 btn btn-link border-0" href="/dashboard"><i class="fa fa-th-large me-2 text-muted"></i> Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark text-start w-100 btn btn-link border-0" href="/patients"><i class="fa fa-user-injured me-2 text-muted"></i> Patients</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark text-start w-100 btn btn-link border-0" href="/upload"><i class="fa fa-cloud-upload-alt me-2 text-muted"></i> Upload CBCT</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark text-start w-100 btn btn-link border-0" href="/analysis"><i class="fa fa-microscope me-2 text-muted"></i> AI Analysis</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark text-start w-100 btn btn-link border-0" href="/reports"><i class="fa fa-file-medical-alt me-2 text-muted"></i> Reports</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark text-start w-100 btn btn-link border-0" href="/settings"><i class="fa fa-cog me-2 text-muted"></i> Settings</a></li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Notifications Center content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content">
+                
+                <!-- Headline Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4 text-start">
+                    <div>
+                        <h2 class="h3 font-weight-black text-dark mb-1">Clinical Alert Center</h2>
+                        <p class="text-secondary small mb-0" th:text="'You have ' + ${unreadCount} + ' unread system messages.'">Alert logs summary</p>
+                    </div>
+                    <form th:action="@{/notifications/read-all}" method="POST">
+                        <button type="submit" class="btn btn-outline-primary btn-sm"><i class="fa fa-check-double me-2"></i>Mark all as read</button>
+                    </form>
+                </div>
+
+                <!-- Alert list table card -->
+                <div class="card p-0 overflow-hidden shadow-sm">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 text-start">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Status</th>
+                                    <th>Alert Type</th>
+                                    <th>Subject & Message</th>
+                                    <th>Timestamp</th>
+                                    <th class="text-end pe-4">Clear</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="n : ${notifications}" class="notification-log-row" style="cursor: pointer;">
+                                    <td class="ps-4">
+                                        <div class="unread-notify-dot" th:if="${!n.isRead}"></div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge" 
+                                              th:classappend="${n.type == 'AI' ? 'status-success' : (n.type == 'UPLOAD' ? 'status-success' : 'status-warning')}" 
+                                              th:text="${n.type}">AI</span>
+                                    </td>
+                                    <td>
+                                        <h4 class="h6 mb-0 font-weight-bold text-dark" th:text="${n.title}">CBCT processed</h4>
+                                        <p class="text-secondary small mb-0" th:text="${n.message}">Details text body</p>
+                                    </td>
+                                    <td class="small text-muted" th:text="${n.timestamp}">10 mins ago</td>
+                                    <td class="text-end pe-4">
+                                        <button type="button" class="btn btn-link btn-sm text-danger dismiss-notification-btn"><i class="fa fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- UI Core webjars & helper scripts -->
+    
+    <div th:replace="~{fragments/components :: scripts}"></div>
+    <script th:src="@{/js/notification.js}"></script>
+</body>
+</html>

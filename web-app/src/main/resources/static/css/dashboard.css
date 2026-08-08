@@ -1,0 +1,115 @@
+/* ========================================================
+   CanineAI Dashboard Module Styles
+   ======================================================== */
+
+.dashboard-card-welcome {
+  background: var(--primary) !important;
+  color: #FFFFFF !important;
+  border: none;
+  border-radius: var(--radius-lg);
+}
+
+.dashboard-card-welcome hr {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Quick shortcut grid items */
+.quick-action-card {
+  text-align: center;
+  padding: 16px;
+  cursor: pointer;
+  background-color: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  height: 100%;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.quick-action-icon-box {
+  width: 44px;
+  height: 44px;
+  background-color: rgba(11, 110, 253, 0.08);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 12px auto;
+  color: var(--primary);
+}
+
+/* Activity item rows layout */
+.activity-list-container {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.activity-row {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color var(--transition-fast);
+}
+
+.activity-row:last-child {
+  border-bottom: none;
+}
+
+.activity-row:hover {
+  background-color: rgba(248, 250, 252, 0.5);
+}
+
+.activity-icon-container {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 16px;
+}
+
+/* Health state indicators */
+.health-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.health-online {
+  background-color: var(--success);
+  box-shadow: 0 0 8px var(--success);
+}
+
+.health-offline {
+  background-color: var(--error);
+  box-shadow: 0 0 8px var(--error);
+}
+
+/* Custom 5-column grid layout for responsive operations statistics */
+.col-five {
+  flex: 0 0 auto;
+  width: 50%;
+  padding: 0 8px;
+}
+@media (min-width: 768px) {
+  .col-five {
+    width: 33.3333%;
+  }
+}
+@media (min-width: 1200px) {
+  .col-five {
+    width: 20%;
+  }
+}

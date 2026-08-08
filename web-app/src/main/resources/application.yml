@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: web-app
+  servlet:
+    multipart:
+      max-file-size: 2048MB
+      max-request-size: 2048MB
+  profiles:
+    active: dev
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+
+server:
+  port: 8081
+
+# Integration endpoints configuration
+canineai:
+  backend:
+    base-url: http://localhost:8080/api/v1
+    timeout-ms: 5000
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}

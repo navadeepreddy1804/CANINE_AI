@@ -1,0 +1,55 @@
+/* ========================================================
+   CanineAI Audit Timeline & Notifications Stylesheet
+   ======================================================== */
+
+/* Vertical track connecting nodes */
+.audit-timeline-container {
+  position: relative;
+  padding-left: 32px;
+  border-left: 2px solid var(--border-color);
+  margin-left: 12px;
+}
+
+.audit-timeline-row {
+  position: relative;
+  margin-bottom: 28px;
+}
+
+.audit-timeline-row:last-child {
+  margin-bottom: 0;
+}
+
+.audit-timeline-node {
+  position: absolute;
+  left: -39px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 3px rgba(11, 110, 253, 0.15);
+}
+
+/* Alert Notification indicator dots */
+.unread-notify-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.notify-table-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background-color: var(--light-bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-weight: 700;
+  margin-right: 12px;
+}

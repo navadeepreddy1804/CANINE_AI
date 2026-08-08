@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanineAI - Complete Profile</title>
+    
+    <!-- Bootstrap 5 CSS via Webjars -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    
+    <!-- Core and Login specific stylesheets -->
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+</head>
+<body class="login-body">
+    <button type="button" class="auth-theme-toggle" onclick="CanineUI.toggleTheme()" aria-label="Toggle theme">
+        <i class="fa fa-adjust"></i>
+    </button>
+
+    <div class="login-container">
+        
+        <div class="org-logo-container d-flex justify-content-center mb-3">
+            <div th:replace="~{fragments/components :: logo(64)}"></div>
+        </div>
+
+        <h1 class="h4 font-weight-bold mb-1">Complete Your Profile</h1>
+        <p class="text-secondary small mb-4">Please provide additional clinical details to continue.</p>
+
+        <div class="login-card">
+            
+            <div th:if="${param.error}"
+                 class="alert-banner alert-error mb-3"
+                 role="alert">
+                <i class="fa fa-times-circle me-2"></i>
+                <span th:text="${param.message}">Failed to update profile.</span>
+            </div>
+
+            <form id="complete-profile-form" th:action="@{/complete-profile}" method="POST">
+                <div class="form-group mb-3 text-start">
+                    <label for="reg-phone" class="form-label font-weight-bold small">Mobile Number</label>
+                    <div class="input-group input-group-sm">
+                        <select id="reg-phone-code" name="phoneCode" class="form-select bg-light" style="max-width: 95px;">
+                            <option value="+1">+1 (US)</option>
+                            <option value="+91" selected>+91 (IN)</option>
+                            <option value="+44">+44 (UK)</option>
+                            <option value="+61">+61 (AU)</option>
+                            <option value="+971">+971 (AE)</option>
+                            <option value="+81">+81 (JP)</option>
+                            <option value="+49">+49 (DE)</option>
+                            <option value="+33">+33 (FR)</option>
+                        </select>
+                        <input type="tel" id="reg-phone" name="phone" placeholder="98765 43210" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3 text-start">
+                    <label for="roleTitle" class="form-label font-weight-bold small">Specialization</label>
+                    <input type="text" id="roleTitle" name="roleTitle" placeholder="Orthodontist" class="form-control form-control-sm" required>
+                </div>
+                
+                <div class="form-group mb-3 text-start">
+                    <label for="hospital" class="form-label font-weight-bold small">Hospital / Clinic Name</label>
+                    <input type="text" id="hospital" name="hospital" placeholder="Metro Dental Diagnostics" class="form-control form-control-sm" required>
+                </div>
+                
+                <div class="form-group mb-4 text-start">
+                    <label for="medicalRegistrationNumber" class="form-label font-weight-bold small">Medical Registration Number</label>
+                    <input type="text" id="medicalRegistrationNumber" name="medicalRegistrationNumber" placeholder="MDR-2026-4290" class="form-control form-control-sm" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                    Complete Setup
+                </button>
+            </form>
+        </div>
+
+        <div class="login-footer">
+            <div>CanineAI Suite v1.0.0</div>
+            <div class="mt-1">
+                <a href="#">Privacy Policy</a>
+                <span class="mx-1 text-muted">•</span>
+                <a href="#">Terms & Conditions</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI helper modules -->
+    <div th:replace="~{fragments/components :: scripts}"></div>
+</body>
+</html>

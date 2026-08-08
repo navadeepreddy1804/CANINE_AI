@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${patient.fullName} + ' - Patient Details'">Patient Details</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/patient.css}">
+</head>
+<body>
+<div th:replace="~{fragments/components :: header}"></div>
+<div class="container-fluid">
+    <div class="row">
+        <div th:replace="~{fragments/components :: sidebar(activePage='patients')}"></div>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content">
+            <a th:href="@{/patients}" class="btn btn-outline-secondary btn-sm mb-4"><i class="fa fa-arrow-left me-2"></i>Back to patients</a>
+
+            <section class="card p-4 mb-4 shadow border border-2 border-primary" style="border-radius: 12px;">
+                <h1 class="h3 mb-4" th:text="${patient.fullName}">Patient Name</h1>
+                <div class="row g-3">
+                    <div class="col-md-3"><span class="text-secondary small d-block">Patient ID</span><strong th:text="${patient.hospitalPatientId}">PT-001</strong></div>
+                    <div class="col-md-3"><span class="text-secondary small d-block">Age</span><strong th:text="${patient.age}">20</strong></div>
+                    <div class="col-md-3"><span class="text-secondary small d-block">Gender</span><strong th:text="${patient.gender}">FEMALE</strong></div>
+                    <div class="col-md-3"><span class="text-secondary small d-block">Date of birth</span><strong th:text="${patient.dob}">2000-01-01</strong></div>
+                </div>
+            </section>
+
+            <section class="card p-4 mb-4 shadow border border-2 border-primary" style="border-radius: 12px;">
+                <h2 class="h5 mb-3">Studies</h2>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead><tr><th>Study ID</th><th>Description</th><th>Files</th><th>Upload date</th><th>Status</th><th>Preview</th></tr></thead>
+                        <tbody>
+                        <tr th:each="study : ${studies}">
+                            <td th:text="${study.id}">study-id</td>
+                            <td th:text="${study.studyDescription}">CBCT</td>
+                            <td th:text="${study.sliceCount} + ' files'">150 files</td>
+                            <td th:text="${study.createdAt}">2026-07-27</td>
+                            <td th:text="${study.status}">COMPLETED</td>
+                            <td><a th:href="@{/analysis(studyId=${study.id})}" class="btn btn-sm btn-outline-primary">View study</a></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(studies)}"><td colspan="6" class="text-center text-secondary py-4">No uploaded studies.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="card p-4 mb-4 shadow border border-2 border-primary" style="border-radius: 12px;">
+                <h2 class="h5 mb-3">Analysis history</h2>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead><tr><th>Report ID</th><th>Study ID</th><th>Analysis date</th><th>Report status</th><th>Persisted analysis</th><th>Actions</th></tr></thead>
+                        <tbody>
+                        <tr th:each="report : ${reports}">
+                            <td th:text="${report.id}">report-id</td>
+                            <td th:text="${report.studyId}">study-id</td>
+                            <td th:text="${report.approvedAt}">2026-07-27</td>
+                            <td th:text="${report.status}">COMPLETED</td>
+                            <td>
+                                <details>
+                                    <summary>View stored result</summary>
+                                    <pre class="small text-wrap mb-0 mt-2" th:text="${report.reportMarkdown}">Persisted report content</pre>
+                                </details>
+                            </td>
+                            <td class="d-flex gap-2 flex-wrap">
+                                <a th:href="@{/reports/{id}(id=${report.id})}" class="btn btn-sm btn-outline-primary">Open report</a>
+                                <a th:href="@{/reports/{id}/pdf(id=${report.id})}" class="btn btn-sm btn-outline-secondary">Download PDF</a>
+                                <a th:href="@{/reports/{id}(id=${report.id})}" target="_blank" class="btn btn-sm btn-outline-secondary">Open to print</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(reports)}"><td colspan="6" class="text-center text-secondary py-4">No completed reports.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="card p-4 shadow border border-2 border-primary" style="border-radius: 12px;">
+                <h2 class="h5 mb-3">Reports</h2>
+                <div th:each="report : ${reports}" class="border rounded p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                        <div><strong th:text="${report.id}">report-id</strong><span class="text-secondary ms-2" th:text="${report.status}">COMPLETED</span></div>
+                        <div class="d-flex gap-2"><a th:href="@{/reports/{id}(id=${report.id})}" class="btn btn-sm btn-primary">View report</a><a th:href="@{/reports/{id}/pdf(id=${report.id})}" class="btn btn-sm btn-outline-secondary">PDF</a></div>
+                    </div>
+                </div>
+                <p th:if="${#lists.isEmpty(reports)}" class="text-secondary mb-0">No persisted reports are available for this patient.</p>
+            </section>
+        </main>
+    </div>
+</div>
+<div th:replace="~{fragments/components :: scripts}"></div>
+</body>
+</html>

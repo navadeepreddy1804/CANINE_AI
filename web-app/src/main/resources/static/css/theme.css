@@ -1,0 +1,695 @@
+/* ========================================================
+   CanineAI Unified CSS Design System
+   Matches Android visual language and branding tokens.
+   ======================================================== */
+
+:root {
+  /* Color Tokens */
+  --primary: #0E7490;
+  --secondary: #06B6D4;
+  --accent: #0891B2;
+  --background: #F8FAFC;
+  --surface: #FFFFFF;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --border-color: #E2E8F0;
+
+  /* State/Status Colors */
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+  --info: #0EA5E9;
+
+  /* Spacing Grid (8pt System) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Corner Radius (Rounded UI) */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  /* Shadow Elevation System */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+
+  /* Animation Configurations */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================================
+   Dark Theme Strategy (Activated via .dark-theme)
+   ======================================================== */
+.dark-theme {
+  --primary: #22D3EE;
+  --secondary: #06B6D4;
+  --accent: #38BDF8;
+  --background: #0F172A;
+  --surface: #1E293B;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --border-color: #334155;
+}
+
+.dark-theme .bg-white,
+.dark-theme .bg-light,
+.dark-theme .bg-body,
+.dark-theme .bg-body-tertiary,
+.dark-theme .alert-light,
+.dark-theme .input-group-text,
+.dark-theme .dropdown-menu,
+.dark-theme .list-group-item,
+.dark-theme .modal-content,
+.dark-theme .offcanvas,
+.dark-theme .popover,
+.dark-theme .toast,
+.dark-theme .card,
+.dark-theme .sidebar,
+.dark-theme .navbar,
+.dark-theme .text-bg-light,
+.dark-theme .bg-primary-subtle,
+.dark-theme .bg-info-subtle,
+.dark-theme .bg-warning-subtle,
+.dark-theme .bg-success-subtle,
+.dark-theme .bg-danger-subtle {
+  background-color: var(--surface) !important;
+}
+.dark-theme .text-dark,
+.dark-theme .text-white,
+.dark-theme .text-white-50,
+.dark-theme .text-bg-light,
+.dark-theme .text-body,
+.dark-theme .text-primary {
+  color: var(--text-primary) !important;
+}
+.dark-theme .text-secondary,
+.dark-theme .text-muted,
+.dark-theme .text-primary { 
+  color: var(--text-secondary) !important;
+}
+.dark-theme .alert,
+.dark-theme .btn-outline-primary,
+.dark-theme .form-check-input {
+  border-color: var(--border-color) !important;
+}
+.dark-theme .btn-outline-primary {
+  background-color: transparent !important;
+}
+.dark-theme .btn-link,
+.dark-theme .nav-link,
+.dark-theme .dropdown-item,
+.dark-theme .dropdown-header {
+  color: var(--text-primary) !important;
+}
+.dark-theme input.form-control,
+.dark-theme select.form-control,
+.dark-theme textarea.form-control,
+.dark-theme .form-select {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+.dark-theme .table,
+.dark-theme .table-light {
+  color: var(--text-primary) !important;
+}
+.dark-theme .table-light {
+  background-color: var(--background) !important;
+}
+.dark-theme tr, .dark-theme td, .dark-theme th,
+.dark-theme .border,
+.dark-theme .border-bottom,
+.dark-theme .border-top,
+.dark-theme .border-start,
+.dark-theme .border-end,
+.dark-theme .border-secondary-subtle {
+  border-color: var(--border-color) !important;
+}
+.dark-theme .badge.bg-light,
+.dark-theme .alert.bg-light {
+  background-color: var(--background) !important;
+  color: var(--text-primary) !important;
+}
+.dark-theme .btn-primary:hover,
+.dark-theme .btn-primary:focus {
+  background-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+/* ========================================================
+   Global UI Base Overrides
+   ======================================================== */
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+/* Bootstrap 5 Overrides & Adjustments */
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.btn {
+  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 13.5px;
+  transition: all var(--transition-fast);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #0257d5;
+  border-color: #0257d5;
+}
+
+.btn-outline-primary {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.form-control {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  padding: 10px 14px;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(11, 110, 253, 0.15);
+  background-color: var(--surface);
+  color: var(--text-primary);
+}
+
+/* ========================================================
+   AdminLTE Compatibility Overrides
+   ======================================================== */
+.main-sidebar {
+  background-color: var(--surface) !important;
+  border-right: 1px solid var(--border-color);
+}
+
+.brand-link {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.nav-sidebar .nav-link.active {
+  background-color: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+/* ========================================================
+   Design System Custom Component Utilities
+   ======================================================== */
+
+/* Skeleton Loader Shimmering */
+.skeleton-box {
+  display: inline-block;
+  height: 1em;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--border-color);
+  border-radius: var(--radius-sm);
+  width: 100%;
+}
+
+.skeleton-box::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.5) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 2s infinite;
+  content: '';
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-success {
+  background-color: rgba(34, 197, 94, 0.12);
+  color: var(--success);
+}
+
+.status-warning {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: var(--warning);
+}
+
+.status-error {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: var(--error);
+}
+
+.status-info {
+  background-color: rgba(14, 165, 233, 0.12);
+  color: var(--info);
+}
+
+/* Circular Loading Spinners */
+.spinner-loader {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(11, 110, 253, 0.15);
+  border-radius: 50%;
+  border-top-color: var(--primary);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Sticky table headers utilities */
+.table-sticky-header {
+  max-height: 500px;
+  overflow-y: auto;
+}
+.table-sticky-header thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--surface) !important;
+  box-shadow: inset 0 -1px 0 var(--border-color);
+}
+
+/* Collapsible Navigation & Fixed Header Layout */
+body {
+  padding-top: 56px;
+}
+
+.navbar {
+  z-index: 1040;
+}
+
+.dropdown-menu {
+  z-index: 1080;
+}
+
+main.main-content {
+  position: relative;
+  z-index: 1;
+}
+
+.navbar {
+  background-color: var(--surface) !important;
+  color: var(--text-primary) !important;
+}
+
+.navbar .navbar-collapse {
+  background-color: var(--surface) !important;
+  z-index: 1045;
+}
+
+.navbar .navbar-collapse .nav-link,
+.navbar .navbar-collapse .btn-link,
+.navbar .navbar-collapse .dropdown-item {
+  color: var(--text-primary) !important;
+}
+
+.disabled-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.08);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-theme .disabled-card-overlay {
+  background-color: rgba(15, 23, 42, 0.75);
+}
+
+.navbar-brand,
+.navbar-nav .nav-link,
+.navbar .btn-link,
+.navbar .navbar-toggler {
+  color: var(--text-primary) !important;
+}
+
+.navbar .navbar-collapse {
+  background-color: var(--surface) !important;
+  z-index: 1045;
+}
+
+.navbar .dropdown-menu {
+  background-color: var(--surface) !important;
+}
+
+.fixed-top {
+  position: fixed !important;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1030;
+  height: 56px;
+}
+
+.sidebar {
+  position: fixed;
+  top: 56px;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  width: 240px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-right: 1px solid var(--border-color);
+  background-color: var(--surface);
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+main.main-content {
+  margin-left: 240px;
+  padding: 24px;
+  min-height: calc(100vh - 56px);
+  transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Collapsed state adjustments */
+body.sidebar-collapsed .sidebar {
+  width: 70px;
+}
+
+body.sidebar-collapsed main.main-content {
+  margin-left: 70px;
+}
+
+body.sidebar-collapsed .sidebar .nav-link span {
+  display: none !important;
+}
+
+body.sidebar-collapsed .sidebar .border-top,
+body.sidebar-collapsed .sidebar .text-uppercase {
+  display: none !important;
+}
+
+.sidebar .nav-link {
+  border-radius: var(--radius-lg);
+  transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 250ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1),
+              color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar .nav-link:hover {
+  background: linear-gradient(135deg, rgba(14, 116, 144, 0.08), rgba(6, 182, 212, 0.12));
+  color: var(--primary) !important;
+  transform: translateX(6px) scale(1.01);
+  cursor: pointer;
+}
+
+.sidebar .nav-link:hover .fa {
+  color: var(--primary) !important;
+  transform: rotate(8deg) scale(1.15);
+  transition: transform var(--transition-fast);
+}
+
+.sidebar .nav-link.active {
+  background: linear-gradient(135deg, #0d95c0, #0b74a8) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(11, 110, 253, 0.2);
+  border-left: 4px solid #7dd3fc;
+}
+
+.sidebar .nav-link.active .fa {
+  color: #ffffff !important;
+}
+
+/* ========================================================
+   Standardized Interactive Controls (Buttons, Dropdowns,
+   Modals, Tooltips, Forms, Tables, FABs)
+   These rules ensure consistent sizing, spacing, hover and
+   disabled states across the web app.
+   ======================================================== */
+
+/* Prevent any accidental horizontal scrolling from components */
+html, body {
+  overflow-x: hidden;
+}
+
+/* Button sizing and alignment */
+.btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.btn.btn-sm {
+  min-height: 38px;
+  padding: 8px 14px;
+  font-size: 13px;
+}
+
+.btn.btn-xs {
+  min-height: 32px;
+  padding: 5px 10px;
+  font-size: 11px;
+}
+
+.text-caption {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+.btn.btn-pill,
+.btn-pill {
+  border-radius: 999px;
+}
+
+.btn-secondary-pill {
+  color: var(--text-secondary);
+  background-color: var(--surface);
+  border-color: var(--border-color);
+}
+
+.btn .fa, .btn .fas, .btn .far {
+  font-size: 14px;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+  transform: translateY(0);
+  transition: transform 80ms ease-out;
+}
+
+.btn:disabled, .btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+/* Icon buttons */
+.btn-icon {
+  padding: 8px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Floating Action Button (FAB) */
+.fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow-lg);
+  z-index: 1200;
+}
+
+/* Dropdowns and Menus */
+.dropdown-menu {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  padding: 6px 0;
+}
+
+.dropdown-item {
+  padding: 10px 16px;
+  border-radius: 6px;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+  background-color: rgba(11,110,253,0.06);
+  color: var(--primary);
+}
+
+/* Modal standardization */
+.modal-content {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.modal-header, .modal-footer {
+  padding: 18px 24px;
+}
+
+.modal-body { padding: 20px 24px; }
+
+/* Tooltips */
+.tooltip-inner {
+  background-color: var(--text-primary) !important;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+
+.tooltip.bs-tooltip-top .arrow::before, .tooltip.bs-tooltip-bottom .arrow::before {
+  border-top-color: var(--text-primary) !important;
+}
+
+/* Tables */
+.table thead th {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-color);
+  font-weight: 700;
+}
+
+.table td, .table th {
+  padding: 12px 14px;
+  vertical-align: middle;
+}
+
+/* Forms and spacing */
+.form-group { margin-bottom: var(--spacing-md); }
+
+.form-check-input:focus, .form-control:focus, .form-select:focus {
+  box-shadow: 0 0 0 4px rgba(11,110,253,0.08);
+}
+
+/* Responsive adjustments to avoid clipped elements */
+@media (max-width: 768px) {
+  body {
+    padding-top: 72px;
+  }
+
+  .navbar {
+    position: fixed !important;
+    width: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1040;
+  }
+
+  .navbar .navbar-collapse {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    margin-top: 8px;
+    z-index: 1100;
+    box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
+  }
+
+  .navbar .navbar-collapse .nav-link {
+    color: var(--text-primary) !important;
+  }
+
+  .navbar .navbar-toggler {
+    border-color: var(--border-color) !important;
+  }
+
+  .navbar .navbar-toggler-icon {
+    background-image: none;
+    width: 24px;
+    height: 24px;
+  }
+
+  .sidebar { display: none; }
+  main.main-content { margin-left: 0; padding: 16px; }
+  .btn { min-height: 42px; padding: 10px 14px; }
+}
+
+/* Keyboard focus accessibility */
+:focus { outline: none; }
+.focus-ring:focus-visible { outline: 3px solid rgba(14,116,144,0.16); border-radius: 8px; }
+
+

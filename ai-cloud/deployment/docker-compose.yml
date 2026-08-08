@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  ai-cloud-service:
+    build:
+      context: ../..
+      dockerfile: ai-cloud/docker/Dockerfile
+    ports:
+      - "${PORT:-8000}:8000"
+    env_file:
+      - ../config/gcp-config.env
+    volumes:
+      - weights-data:/app/weights
+      - uploads-data:/app/uploads
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: always
+
+volumes:
+  weights-data:
+  uploads-data:

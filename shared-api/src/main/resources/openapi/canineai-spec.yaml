@@ -1,0 +1,305 @@
+openapi: 3.0.3
+info:
+  title: CanineAI REST API
+  description: API contract between the core Backend REST service, the Web Application, the Android Application, and the AI Pipeline Service.
+  version: 1.0.0
+servers:
+  - url: /api/v1
+    description: Standard gateway base URL path
+paths:
+  /auth/login:
+    post:
+      summary: User authentication endpoint
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      summary: Register a clinician account
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Clinician profile created with a default role
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+  /patients:
+    get:
+      summary: Get paginated list of patients
+      tags:
+        - Patients
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated patients retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedPatientsResponse'
+    post:
+      summary: Admit a new patient
+      tags:
+        - Patients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientRequest'
+      responses:
+        '200':
+          description: Patient admitted successfully
+
+  /uploads:
+    post:
+      summary: Initialize a new CBCT upload session
+      tags:
+        - CBCT Upload & PACS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadSessionRequest'
+      responses:
+        '200':
+          description: Upload session registered
+
+  /ai/jobs:
+    post:
+      summary: Trigger ToothSeg AI analysis on a study
+      tags:
+        - AI Diagnostics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiJobRequest'
+      responses:
+        '200':
+          description: AI Job queued successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiJobResponse'
+
+  /reports/generate:
+    post:
+      summary: Generate clinical report via LLM provider
+      tags:
+        - Clinical Report Engine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportGenerateRequest'
+      responses:
+        '200':
+          description: Markdown report compiled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    LoginResponse:
+      type: object
+      required:
+        - accessToken
+        - refreshToken
+        - user
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/UserDto'
+    UserDto:
+      type: object
+      required:
+        - id
+        - email
+        - username
+        - fullName
+        - phone
+        - roleTitle
+        - role
+        - enabled
+        - roles
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        fullName:
+          type: string
+        roleTitle:
+          type: string
+        role:
+          type: string
+          description: Primary authorization role, such as ORTHODONTIST
+        username:
+          type: string
+        phone:
+          type: string
+        enabled:
+          type: boolean
+        roles:
+          type: array
+          items:
+            type: string
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - fullName
+        - phone
+        - username
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        fullName:
+          type: string
+        phone:
+          type: string
+        username:
+          type: string
+    PatientRequest:
+      type: object
+      required:
+        - fullName
+        - dateOfBirth
+        - gender
+      properties:
+        fullName:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        gender:
+          type: string
+    PagedPatientsResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/PatientRequest'
+        totalPages:
+          type: integer
+        totalElements:
+          type: integer
+    UploadSessionRequest:
+      type: object
+      required:
+        - patientId
+        - totalFiles
+      properties:
+        patientId:
+          type: string
+          format: uuid
+        totalFiles:
+          type: integer
+    AiJobRequest:
+      type: object
+      required:
+        - studyId
+        - taskType
+      properties:
+        studyId:
+          type: string
+          format: uuid
+        taskType:
+          type: string
+    AiJobResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        progressPercentage:
+          type: integer
+    ReportGenerateRequest:
+      type: object
+      required:
+        - studyId
+        - reportStyle
+      properties:
+        studyId:
+          type: string
+          format: uuid
+        reportStyle:
+          type: string
+    ReportResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        reportMarkdown:
+          type: string
+        status:
+          type: string

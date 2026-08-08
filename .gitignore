@@ -1,0 +1,150 @@
+# JVM/Java/Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.metadata/
+.recommenders/
+.classpath
+.project
+.settings/
+bin/
+dependency-reduced-pom.xml
+.lighthouse/
+
+# Android
+.gradle/
+build/
+local.properties
+.navigation/
+captures/
+.externalNativeBuild/
+.cxx/
+cmake-build-*/
+*.apk
+*.ap_
+*.aab
+
+# Kotlin
+*.kotlin_module
+.kotlinc/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.ipynb_checkpoints
+.venv
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IntelliJ IDEA / Eclipse / VS Code
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+
+# Environment & Credentials
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.p12
+*.jks
+
+# Databases
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# OS Specific
+Thumbs.db
+db.properties
+.DS_Store
+.DS_Store?
+ehthumbs.db
+Icon?
+ehthumbs_vista.db
+[Dd]esktop.ini
+# ===============================
+# ToothSeg / nnUNet / AI Models
+# ===============================
+
+# Model weights
+*.pth
+*.pt
+*.ckpt
+*.onnx
+trained-models/
+models/
+weights/
+
+# nnUNet folders
+nnUNet_raw/
+nnUNet_preprocessed/
+nnUNet_results/
+
+# Medical images
+*.dcm
+*.nii
+*.nii.gz
+
+# Uploaded scans
+uploads/
+reports/
+
+# AI caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# Node
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# Temporary
+*.tmp
+*.bak
+# Gradle cache
+.gradle-user-home/
+android-app/.gradle-user-home/
+.gradle/
+
+# Android Studio
+.idea/

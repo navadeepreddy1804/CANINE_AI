@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanineAI - Clinical Home</title>
+    
+    <!-- Bootstrap 5 CSS via Webjars -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Unified Design Tokens Theme & Layout CSS -->
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body>
+
+    <!-- Unified Navigation Header -->
+    <div th:replace="~{fragments/components :: header}"></div>
+
+    <!-- 1. GUEST SHOWCASE / LANDING EXPERIENCE (Unauthenticated) -->
+    <div class="container-fluid py-5" th:if="${!authenticated}" style="background-color: var(--background);">
+        <div class="row justify-content-center py-5 border-bottom shadow-sm">
+            <div class="col-lg-8 text-center py-4">
+                <div class="mb-4 d-inline-block text-primary">
+                    <div th:replace="~{fragments/components :: logo(64)}"></div>
+                </div>
+                <h1 class="display-4 font-weight-black text-dark mb-3">Enterprise AI Orthodontic Platform</h1>
+                <p class="lead text-secondary mb-4">CanineAI is a state-of-the-art SaaS diagnostic workspace designed for orthodontists, dental clinics, and medical researchers. Automate CBCT canine segmentations and generate clinical reports instantly.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="/login" class="btn btn-primary btn-lg px-4 py-2 rounded-pill shadow-sm">Sign In to Workspace</a>
+                    <a href="/login#signup" class="btn btn-outline-primary btn-lg px-4 py-2 rounded-pill">Create Practitioner Account</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="container py-5">
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4">
+                    <div class="card p-4 shadow border border-2 border-primary h-100" style="border-radius: 12px;">
+                        <div class="text-primary mb-3"><i class="fa fa-microscope fa-2x"></i></div>
+                        <h3 class="h5 font-weight-bold text-dark">Automated CBCT AI Prediction</h3>
+                        <p class="text-secondary small mb-0">Run dynamic 3D segmentations to estimate maxillary canine eruption angles and identify impaction threats with high accuracy.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 shadow border border-2 border-primary h-100" style="border-radius: 12px;">
+                        <div class="text-primary mb-3"><i class="fa fa-file-medical fa-2x"></i></div>
+                        <h3 class="h5 font-weight-bold text-dark">Instant Report Generation</h3>
+                        <p class="text-secondary small mb-0">Create compliant clinical orthodontic reports from persisted measurements, patient history, and recommendations.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card p-4 shadow border border-2 border-primary h-100" style="border-radius: 12px;">
+                        <div class="text-primary mb-3"><i class="fa fa-shield-alt fa-2x"></i></div>
+                        <h3 class="h5 font-weight-bold text-dark">HIPAA-Compliant Storage</h3>
+                        <p class="text-secondary small mb-0">Rest assured that patient EMR datasets are encrypted and stored in full compliance with global healthcare privacy guidelines.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. CLINICIAN WORKSPACE (Authenticated) -->
+    <div class="container-fluid" th:if="${authenticated}">
+        <div class="row">
+            
+            <!-- Unified Sidebar Navigation -->
+            <div th:replace="~{fragments/components :: sidebar(activePage='dashboard')}"></div>
+
+            <!-- Main Dashboard Body Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content">
+                <div class="row g-4">
+                    
+                    <!-- Welcome doctor banner -->
+                    <div class="col-12">
+                        <div class="card dashboard-card-welcome p-4">
+                            <p class="mb-1 text-white-50">Welcome,</p>
+                            <h2 class="font-weight-black text-white" th:text="${doctorName}">Dr. Allan Green</h2>
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small text-white-50" th:text="${organizationName}">Metro Dental Diagnostics</span>
+                                <span id="dashboard-today-date" class="small font-weight-bold text-white" th:text="${todayDate}">Saturday, July 11, 2026</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick shortcut actions -->
+                    <div class="col-12">
+                        <h3 class="h5 font-weight-bold mb-3 text-dark">Quick Actions</h3>
+                        <div class="row g-3">
+                            <div class="col-6 col-md-3">
+                                <div id="action-new-patient" class="quick-action-card" onclick="location.href='/patients/new'">
+                                    <div class="quick-action-icon-box"><i class="fa fa-user-plus"></i></div>
+                                    <span class="small font-weight-bold text-dark">New Patient</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div id="action-upload-cbct" class="quick-action-card" onclick="location.href='/upload'">
+                                    <div class="quick-action-icon-box"><i class="fa fa-upload"></i></div>
+                                    <span class="small font-weight-bold text-dark">Upload CBCT</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div id="action-gen-report" class="quick-action-card" onclick="location.href='/reports'">
+                                    <div class="quick-action-icon-box"><i class="fa fa-file-pdf"></i></div>
+                                    <span class="small font-weight-bold text-dark">Generate Report</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div id="action-view-history" class="quick-action-card" onclick="location.href='/history'">
+                                    <div class="quick-action-icon-box"><i class="fa fa-list"></i></div>
+                                    <span class="small font-weight-bold text-dark">View History</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Statistics Overview Cards -->
+                    <div class="col-12">
+                        <h3 class="h5 font-weight-bold mb-3 text-dark">Operations Overview</h3>
+                        <div class="row g-3">
+                            <div class="col-five">
+                                <div th:replace="~{fragments/components :: stat-card('Total Patients', ${totalPatients}, 'fa fa-hospital-user')}"></div>
+                            </div>
+                            <div class="col-five">
+                                <div th:replace="~{fragments/components :: stat-card('Today\'s Uploads', ${todayUploads}, 'fa fa-cloud-upload-alt')}"></div>
+                            </div>
+                            <div class="col-five">
+                                <div th:replace="~{fragments/components :: stat-card('Completed', ${completedAnalyses}, 'fa fa-check-circle')}"></div>
+                            </div>
+                            <div class="col-five">
+                                <div th:replace="~{fragments/components :: stat-card('Pending Queue', ${pendingAnalyses}, 'fa fa-spinner')}"></div>
+                            </div>
+                            <div class="col-five">
+                                <div th:replace="~{fragments/components :: stat-card('Reports', ${reportsGenerated}, 'fa fa-file-alt')}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Left: Recent activities log tracker | Right: Recent Patients -->
+                    <div class="col-lg-8">
+                        <h3 class="h5 font-weight-bold mb-3 text-dark">Recent Diagnostic Log</h3>
+                        
+                        <!-- Real Activity Feed -->
+                        <div class="activity-list-container" th:if="${!recentActivities.isEmpty()}">
+                            <div th:each="act : ${recentActivities}" class="activity-row">
+                                <div class="activity-icon-container" 
+                                     th:classappend="${act.type == 'upload' ? 'bg-primary-subtle text-primary' : 
+                                                       (act.type == 'analysis' ? 'bg-success-subtle text-success' : 
+                                                       (act.type == 'report' ? 'bg-warning-subtle text-warning' : 'bg-info-subtle text-info'))}">
+                                    <i th:class="${act.type == 'upload' ? 'fa fa-cloud-upload-alt' : 
+                                                  (act.type == 'analysis' ? 'fa fa-microscope' : 
+                                                  (act.type == 'report' ? 'fa fa-file-pdf' : 'fa fa-user-injured'))}"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h4 class="h6 mb-0 font-weight-bold text-dark" th:text="${act.title}">CBCT Uploaded</h4>
+                                    <span class="small text-secondary" th:text="${act.subtitle}">Patient details</span>
+                                </div>
+                                <span class="small text-muted" th:text="${act.time}">10 mins ago</span>
+                            </div>
+                        </div>
+
+                        <!-- Professional Empty State -->
+                        <div class="activity-list-container p-5 text-center border rounded" th:if="${recentActivities.isEmpty()}">
+                             <div class="text-muted mb-3"><i class="fa fa-folder-open fa-3x"></i></div>
+                             <h4 class="h6 text-dark font-weight-bold">No Recent Activity</h4>
+                             <p class="text-secondary small mb-0">All recent system diagnostic operations will appear here once scans are processed.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: System Status & Recent Patients -->
+                    <div class="col-lg-4">
+                        <!-- System Status Card -->
+                        <div class="card p-3 mb-4 shadow border border-2 border-primary" style="border-radius: 12px; background-color: var(--card-bg) !important;">
+                            <h3 class="h6 font-weight-bold mb-3 text-dark d-flex align-items-center justify-content-between">
+                                <span>Clinical Platform Status</span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small text-caption">
+                                    <i class="fa-solid fa-circle-check me-1"></i> Operational
+                                </span>
+                            </h3>
+                            <div class="d-flex flex-column gap-2 small">
+                                <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                                    <span class="text-secondary"><i class="fa fa-database text-muted me-2"></i>Patient Registry</span>
+                                    <span class="font-weight-bold text-success">Active</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                                    <span class="text-secondary"><i class="fa-solid fa-brain text-muted me-2"></i>AI Diagnostic Engine</span>
+                                    <span class="font-weight-bold text-success">Online</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center py-1">
+                                    <span class="text-secondary"><i class="fa fa-envelope text-muted me-2"></i>Report Delivery</span>
+                                    <span class="font-weight-bold text-primary">Active</span>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+
+                        <h3 class="h5 font-weight-bold mb-3 text-dark">Recent Patients</h3>
+                        
+                        <div class="card p-3 shadow border border-2 border-primary" style="border-radius: 12px; min-height: 250px;">
+                            <!-- Patient Rows -->
+                            <div class="list-group list-group-flush" th:if="${!recentPatients.isEmpty()}">
+                                <a th:each="rp : ${recentPatients}" th:href="@{/patients/{id}(id=${rp.id})}" class="list-group-item list-group-item-action border-0 px-0 py-2 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0 font-weight-bold text-dark" th:text="${rp.fullName}">John Doe</h6>
+                                        <span class="small text-secondary" th:text="${rp.hospitalPatientId}">PT-00001</span>
+                                    </div>
+                                    <span class="badge bg-primary-subtle text-primary rounded-pill small" th:text="${rp.gender}">Male</span>
+                                </a>
+                            </div>
+
+                            <!-- Professional Empty State -->
+                            <div class="text-center py-4" th:if="${recentPatients.isEmpty()}">
+                                <div class="text-muted mb-2"><i class="fa fa-user-injured fa-2x"></i></div>
+                                <h6 class="text-dark font-weight-bold mb-1">No Patients Registered</h6>
+                                <p class="text-secondary small mb-3">Add patient profiles to start CBCT diagnostics.</p>
+                                <a href="/patients/new" class="btn btn-primary btn-sm px-3 rounded-pill">Admit Patient</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- UI helper modules -->
+    <div th:replace="~{fragments/components :: scripts}"></div>
+    <script th:src="@{/js/dashboard.js}"></script>
+</body>
+</html>

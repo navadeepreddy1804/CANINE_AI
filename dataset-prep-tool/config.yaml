@@ -1,0 +1,31 @@
+# CanineAI Dataset Preparation & Doctor Review Package Generator Configuration
+
+# Input dataset directory containing NIfTI (.nii, .nii.gz) files
+dataset_path: "D:\\DentalDatasets\\STS-3D-Tooth"
+
+# Output directory where the Doctor_Review_Package will be generated
+output_path: "C:\\Users\\darsi\\Downloads\\CANINE_AI\\dataset-prep-tool\\Doctor_Review_Package"
+
+# Image processing configurations
+image_processing:
+  normalize_intensity: true
+  correct_orientation: true
+  crop_borders: true
+  crop_threshold: 10
+  clahe:
+    enabled: true
+    clip_limit: 2.0
+    tile_grid_size: [8, 8]
+
+# Quality control thresholds
+quality_control:
+  min_slice_count: 50
+  min_contrast_std: 15.0
+  duplicate_detection: true
+
+# Execution settings
+performance:
+  use_multiprocessing: true
+  num_workers: 4
+  resume_interrupted: true
+  overwrite_existing: false

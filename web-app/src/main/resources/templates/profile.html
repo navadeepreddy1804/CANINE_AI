@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanineAI - Clinician Profile</title>
+    
+    <!-- Bootstrap 5 CSS via Webjars -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Unified Design System Theme, Dashboard & Form CSS -->
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body class="bg-light">
+
+    <!-- Unified Navigation Header -->
+    <div th:replace="~{fragments/components :: header}"></div>
+
+    <div class="container py-5 text-start">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                
+                <!-- Back navigation button -->
+                <div class="mb-4">
+                    <a href="/settings" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                        <i class="fa fa-arrow-left me-1"></i> Back to Settings
+                    </a>
+                </div>
+
+                <!-- Premium Clinician Profile Card -->
+                <div class="card shadow border-0 overflow-hidden" style="border-radius: var(--radius-lg);">
+                    
+                    <!-- Beautiful profile top banner with rich gradient -->
+                    <div class="bg-gradient p-4 text-white position-relative" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+                        <div class="d-flex flex-column flex-sm-row align-items-center gap-4 py-2">
+                            <!-- Premium Avatar block -->
+                            <div class="position-relative">
+                                <div class="d-flex align-items-center justify-content-center bg-white text-primary rounded-circle shadow-lg border border-3 border-white" style="width: 100px; height: 100px; font-size: 40px; font-weight: 800;">
+                                    <span th:text="${#strings.substring(profile.fullName, 0, 1)}">D</span>
+                                </div>
+                                <span class="position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle p-2" style="width: 18px; height: 18px;" title="Online"></span>
+                            </div>
+                            <div class="text-center text-sm-start">
+                                <h2 class="h4 font-weight-black mb-1" th:text="${profile.fullName}">Dr. Allan Green</h2>
+                                <p class="mb-2 opacity-90 small" th:text="${profile.role}">Orthodontist Specialist</p>
+                                <div class="d-flex flex-wrap justify-content-center justify-content-sm-start gap-2">
+                                    <span class="badge bg-white text-primary font-weight-bold px-2 py-1" style="font-size: 11px;">
+                                        <i class="fa-solid fa-id-card me-1"></i> <span th:text="${profile.username}">doctor_green</span>
+                                    </span>
+                                    <span class="badge bg-success-subtle text-white font-weight-bold px-2 py-1 border border-success-subtle" style="font-size: 11px;">
+                                        <i class="fa fa-check-circle me-1"></i>
+                                        <span>ACCOUNT ACTIVE</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+                        <form th:action="@{/profile/save}" method="POST">
+                            
+                            <h3 class="h6 font-weight-bold text-primary border-bottom pb-2 mb-3">
+                                <i class="fa fa-user me-2"></i>Personal Practitioner Details
+                            </h3>
+
+                            <div class="row g-3 mb-4">
+                                <!-- Full Name -->
+                                <div class="col-12 col-sm-6">
+                                    <label class="form-label font-weight-bold small">Doctor Name</label>
+                                    <input type="text" name="fullName" th:value="${profile.fullName}" class="form-control form-control-sm" required />
+                                </div>
+
+                                <!-- Mobile Number -->
+                                <div class="col-12 col-sm-6">
+                                    <label class="form-label font-weight-bold small">Mobile Number</label>
+                                    <input type="text" name="phone" th:value="${profile.phone}" class="form-control form-control-sm" required />
+                                </div>
+
+                                <!-- Email (Read Only) -->
+                                <div class="col-12 col-sm-6">
+                                    <label class="form-label font-weight-bold small">Email Address</label>
+                                    <input type="email" th:value="${profile.email}" class="form-control form-control-sm bg-light text-secondary" readonly />
+                                    <span class="small text-muted font-weight-bold text-caption"><i class="fa fa-lock me-1"></i>Linked to Authentication SSO</span>
+                                </div>
+
+                                <!-- Username (Read Only) -->
+                                <div class="col-12 col-sm-6">
+                                    <label class="form-label font-weight-bold small">Practitioner Username</label>
+                                    <input type="text" th:value="${profile.username}" class="form-control form-control-sm bg-light text-secondary" readonly />
+                                    <span class="small text-muted font-weight-bold text-caption"><i class="fa fa-lock me-1"></i>Cannot be modified after registration</span>
+                                </div>
+                            </div>
+
+                            <h3 class="h6 font-weight-bold text-primary border-bottom pb-2 mb-3">
+                                <i class="fa fa-hospital me-2"></i>Clinical & Hospital Linkages
+                            </h3>
+
+                            <div class="row g-3 mb-4">
+                                <!-- Hospital Name -->
+                                <div class="col-12 col-sm-6">
+                                    <label class="form-label font-weight-bold small">Hospital Name</label>
+                                    <input type="text" name="hospital" th:value="${profile.hospital}" class="form-control form-control-sm" placeholder="Hospital or Clinic Name" />
+                                </div>
+
+                                <!-- Clinic Department -->
+                                <div class="col-12 col-sm-6">
+                                    <label class="form-label font-weight-bold small">Clinic Department</label>
+                                    <input type="text" name="department" th:value="${profile.department}" class="form-control form-control-sm" placeholder="Department (e.g. Orthodontics)" />
+                                </div>
+
+                                <!-- Role Title Selection -->
+                                <div class="col-12 col-sm-6">
+                                    <label class="form-label font-weight-bold small">Clinical Role / Specialty</label>
+                                    <select name="roleTitle" class="form-select form-select-sm">
+                                        <option value="Orthodontics & Dentofacial Orthopedics" th:selected="${profile.role == 'Orthodontics & Dentofacial Orthopedics'}">Orthodontics & Dentofacial Orthopedics</option>
+                                        <option value="Oral & Maxillofacial Surgery" th:selected="${profile.role == 'Oral & Maxillofacial Surgery'}">Oral & Maxillofacial Surgery</option>
+                                        <option value="Pediatric Dentistry" th:selected="${profile.role == 'Pediatric Dentistry'}">Pediatric Dentistry</option>
+                                        <option value="General Dentistry" th:selected="${profile.role == 'General Dentistry'}">General Dentistry</option>
+                                    </select>
+                                </div>
+
+                                <!-- Experience or Years (Read Only representation) -->
+                                <div class="col-12 col-sm-6">
+                                    <label class="form-label font-weight-bold small">EMR Access Roles</label>
+                                    <input type="text" th:value="${profile.roles}" class="form-control form-control-sm bg-light text-secondary" readonly />
+                                </div>
+                            </div>
+
+                            <!-- Buttons actions -->
+                            <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                                <a href="/settings" class="btn btn-light rounded-pill px-4">Cancel</a>
+                                <button type="submit" class="btn btn-primary shadow-sm rounded-pill px-4 font-weight-bold">
+                                    <i class="fa fa-save me-1"></i> Save Profile Details
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Core helper scripts -->
+    <div th:replace="~{fragments/components :: scripts}"></div>
+</body>
+</html>

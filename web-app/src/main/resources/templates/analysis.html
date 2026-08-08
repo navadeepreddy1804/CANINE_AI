@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <title>CanineAI - Clinical Analysis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Bootstrap 5 CSS via Webjars -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Unified Design Tokens Theme & Layout CSS -->
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    
+    <style>
+        .medical-header {
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .patient-summary-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .prediction-card {
+            background: linear-gradient(135deg, rgba(14,165,233,0.05) 0%, rgba(14,165,233,0.15) 100%);
+            border: 1px solid rgba(14,165,233,0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .prediction-status {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-IMPACTED { color: #dc3545; }
+        .status-DELAYED { color: #fd7e14; }
+        .status-ERUPTED { color: #198754; }
+        
+        .tooth-details {
+            font-size: 1.2rem;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .measurements-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .measurement-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .findings-box, .recommendation-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .recommendation-box {
+            border-left: 4px solid var(--primary);
+        }
+
+        .timer-box {
+            font-family: monospace;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+    <div th:replace="~{fragments/components :: header}"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            
+            <!-- Unified Sidebar Navigation -->
+            <div th:replace="~{fragments/components :: sidebar(activePage='analysis')}"></div>
+
+            <!-- Main Workspace content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content">
+        
+                <div th:if="${noScans}" class="card p-5 text-center shadow-sm mx-auto" style="max-width: 600px; margin-top: 10vh;">
+                    <i class="fa fa-folder-open text-muted mb-4" style="font-size: 4rem;"></i>
+                    <h3 class="h4 font-weight-bold mb-3">No Clinical Study Found</h3>
+                    <p class="text-secondary mb-4">Please upload a CBCT volume for this patient to run the AI diagnostic simulation.</p>
+                    <a th:href="${noPatients} ? '/patients/new' : ('/upload?patientId=' + patient.id)" class="btn btn-primary px-4">
+                        <i class="fa fa-upload me-2"></i> Upload CBCT Study
+                    </a>
+                </div>
+
+        <div th:if="${!noScans}">
+            <!-- HEADER -->
+            <div class="d-flex justify-content-between align-items-end medical-header">
+                <div>
+                    <h2 class="mb-1 fw-bold">AI Clinical Analysis</h2>
+                    <div class="text-muted fs-5">
+                        <span th:text="${patient != null ? patient.fullName : 'Unknown'}">John Doe</span> | 
+                        ID: <span th:text="${patient != null ? patient.hospitalPatientId : 'N/A'}">PT-001</span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <button id="run-btn" class="btn btn-primary btn-lg shadow-sm px-4" th:data-study-id="${studyId}">
+                        <i class="fa fa-play-circle me-2"></i> Start Diagnostic Run
+                    </button>
+                </div>
+            </div>
+
+            <!-- PATIENT SUMMARY -->
+            <div class="patient-summary-box shadow-sm">
+                <div class="row text-center">
+                    <div class="col-md-2">
+                        <div class="summary-label">Age</div>
+                        <div class="summary-value" th:text="${patient != null && patient.dateOfBirth != null ? T(java.time.Period).between(patient.dateOfBirth, T(java.time.LocalDate).now()).getYears() : 'N/A'}">28</div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="summary-label">Gender</div>
+                        <div class="summary-value" th:text="${patient != null && patient.gender != null ? patient.gender : 'N/A'}">Male</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="summary-label">Study Date</div>
+                        <div class="summary-value" th:text="${study != null ? study.studyDate : 'N/A'}">2026-08-01</div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="summary-label">Filename</div>
+                        <div class="summary-value text-truncate" th:text="${study != null ? study.studyDescription : 'study.zip'}">study.zip</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- STUDY PREVIEW -->
+            <div class="card shadow-sm mb-4 border-0" style="background-color: var(--card-bg);">
+                <div class="card-header bg-transparent border-bottom-0 pt-4 pb-2">
+                    <h5 class="fw-bold text-primary mb-0"><i class="fa fa-images me-2"></i>CBCT Axial Previews</h5>
+                    <small class="text-muted">Representative slices extracted directly from the uploaded NIfTI volume</small>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="row g-2">
+                        <!-- Display 6 slices using the preview endpoint -->
+                        <div class="col-4 col-md-2" th:each="i : ${#numbers.sequence(0, 5)}">
+                            <div class="border rounded overflow-hidden ratio ratio-1x1 bg-dark shadow-sm position-relative">
+                                <img th:src="@{'/studies/' + ${study.id} + '/previews/axial/' + ${i}}" 
+                                     alt="Axial Slice" 
+                                     class="w-100 h-100 object-fit-cover"
+                                     onerror="this.src='/img/placeholder-scan.png'; this.classList.add('opacity-25'); this.style.filter='grayscale(100%)';">
+                                <div class="position-absolute bottom-0 start-0 w-100 p-1 text-center text-white" style="background: rgba(0,0,0,0.6); font-size: 0.75rem;">
+                                    Axial <span th:text="${i+1}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANALYSIS PROGRESS (Hidden initially) -->
+            <div id="progress-section" class="card shadow-sm mb-4 d-none border-primary">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 fw-bold text-primary" id="progress-status-text">Initializing Analysis...</h5>
+                        <div class="timer-box">
+                            <span class="text-muted me-2" style="font-size: 0.9rem;">ELAPSED:</span><span id="timer-elapsed">00:00</span>
+                        </div>
+                    </div>
+                    <div class="progress mb-3" style="height: 12px; border-radius: 6px;">
+                        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%;"></div>
+                    </div>
+                    <div class="row text-center text-muted small fw-bold" id="progress-steps">
+                        <div class="col" id="step-1">Initializing</div>
+                        <div class="col" id="step-2">Validation</div>
+                        <div class="col" id="step-3">Processing</div>
+                        <div class="col" id="step-4">Analysis</div>
+                        <div class="col" id="step-5">Assessment</div>
+                        <div class="col" id="step-6">Report</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULTS SECTION (Hidden initially) -->
+            <div id="results-section" class="d-none">
+                
+                <div class="row mb-4">
+                    <!-- PREDICTION CARD -->
+                    <div class="col-md-5 mb-4 mb-md-0">
+                        <div class="prediction-card shadow-sm">
+                            <div class="text-uppercase text-muted fw-bold mb-3">CANINE ERUPTION ASSESSMENT</div>
+                            <div id="res-status" class="prediction-status status-IMPACTED">IMPACTED</div>
+                            
+                            <div class="tooth-details">
+                                <div class="fw-bold mb-1" id="res-fdi">FDI 13</div>
+                                <div class="text-muted" id="res-tooth-name">Maxillary Right Canine</div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <div class="text-muted small text-uppercase mb-1 fw-bold">AI Confidence</div>
+                                <div class="confidence-badge" id="res-conf">74%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- MEASUREMENTS GRID -->
+                    <div class="col-md-7">
+                        <div class="section-title">Clinical Measurements</div>
+                        <div class="measurements-grid shadow-sm p-3 bg-white rounded" style="background-color: var(--card-bg) !important; border: 1px solid var(--border-color);">
+                            
+                            <div class="measurement-item">
+                                <div class="summary-label">Canine Angulation</div>
+                                <div class="summary-value text-primary fw-bold" id="res-angulation">--°</div>
+                            </div>
+                            <div class="measurement-item">
+                                <div class="summary-label">Canine Volume</div>
+                                <div class="summary-value" id="res-volume">-- mm³</div>
+                            </div>
+                            <div class="measurement-item">
+                                <div class="summary-label">Distance to Midline</div>
+                                <div class="summary-value" id="res-midline">-- mm</div>
+                            </div>
+                            <div class="measurement-item">
+                                <div class="summary-label">Distance to Occlusal</div>
+                                <div class="summary-value" id="res-occlusal">-- mm</div>
+                            </div>
+                            <div class="measurement-item">
+                                <div class="summary-label">Arch Position</div>
+                                <div class="summary-value" id="res-arch">--</div>
+                            </div>
+                            <div class="measurement-item">
+                                <div class="summary-label">Crown Position</div>
+                                <div class="summary-value" id="res-crown">--</div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="section-title">Clinical Findings</div>
+                        <div class="findings-box shadow-sm" id="res-findings">
+                            --
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="section-title">Recommendation</div>
+                        <div class="recommendation-box shadow-sm" id="res-rec">
+                            --
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- REPORT PREVIEW -->
+                <div class="card shadow-sm mt-2 border-secondary" id="report-panel">
+                    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center py-3">
+                        <h5 class="mb-0"><i class="fa fa-file-pdf me-2"></i> Clinical Report</h5>
+                        <button id="download-pdf-btn" class="btn btn-light btn-sm fw-bold text-dark">
+                            <i class="fa fa-download me-1"></i> Download PDF
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center mb-3">
+                            <div class="col-md-6 text-muted">
+                                <strong>Report Status:</strong> Generated<br>
+                                <strong>Timestamp:</strong> <span id="res-timestamp">--</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-light rounded border" id="report-preview-content" style="font-family: monospace; white-space: pre-wrap; font-size: 0.9rem; max-height: 300px; overflow-y: auto; background-color: var(--card-bg) !important; color: var(--text-main);">
+                            Loading report content...
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+        </div>
+            </main>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/components :: scripts}"></div>
+    
+    <script>
+        const studyId = "[[${studyId}]]";
+        const hasPersistedReport = [[${persistedReport != null}]];
+    </script>
+    <script th:src="@{/js/analysis.js}"></script>
+</body>
+</html>

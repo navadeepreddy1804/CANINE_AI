@@ -1,0 +1,112 @@
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  application:
+    name: canineai-backend
+  # ── Mail / SMTP ──────────────────────────────────────────────────────────────
+  # If MAIL_PASSWORD is not set the application starts normally and all email
+  # methods degrade to console logging. Registration is NEVER blocked by email.
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${MAIL_TLS:false}
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+  servlet:
+    multipart:
+      max-file-size: ${MAX_UPLOAD_SIZE_MB:2048}MB
+      max-request-size: ${MAX_REQUEST_SIZE_MB:2048}MB
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: alpha
+    tagsSorter: alpha
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+canineai:
+  jwt:
+    secret: ${JWT_SECRET:8bf43e999eb3c13a693bba2a20b22a0a2569e56ab93a1c1d8c11fb627d3c0ec5}
+    expiration-ms: ${JWT_ACCESS_EXPIRATION:3600000}
+    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION:604800000}
+    issuer: ${JWT_ISSUER:CanineAI}
+  security:
+    cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:8081,http://10.0.2.2:8080}
+    internal-gateway-key: ${INTERNAL_GATEWAY_KEY:sk-canine-local-dev-key}
+    password-min-length: ${PASSWORD_MIN_LENGTH:8}
+    password-bcrypt-rounds: ${PASSWORD_BCRYPT_ROUNDS:12}
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+    client-secret: ${GOOGLE_CLIENT_SECRET:}
+  ai:
+    mode: ${AI_MODE:real}
+    gateway:
+      api-key: ${INTERNAL_GATEWAY_KEY:sk-canine-local-dev-key}
+    models:
+      canine-detector:
+        name: ToothSeg
+        version: v1.2.0
+        url: http://localhost:8002/api/v1/inference
+        fallback-url: http://localhost:8002/api/v1/inference
+  session:
+    timeout-minutes: ${SESSION_TIMEOUT_MINUTES:60}
+    remember-me-days: ${REMEMBER_ME_DAYS:30}
+  storage:
+    report-dir: ${REPORT_DIR:reports}
+    upload-dir: ${UPLOAD_DIR:uploads}
+    model-dir: ${MODEL_DIR:trained-models}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      aiService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+  retry:
+    instances:
+      aiService:
+        maxAttempts: 3
+        waitDuration: 2s
+        retryExceptions:
+          - org.springframework.web.reactive.function.client.WebClientResponseException
+          - java.io.IOException
+  bulkhead:
+    instances:
+      aiService:
+        maxConcurrentCalls: 10
+        maxWaitDuration: 500ms
+  ratelimiter:
+    instances:
+      aiService:
+        limitForPeriod: 50
+        limitRefreshPeriod: 1s
+        timeoutDuration: 500ms

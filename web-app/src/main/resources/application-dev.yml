@@ -1,0 +1,20 @@
+spring:
+  thymeleaf:
+    cache: false
+  # To enable real email dispatch in dev, configure actual credentials below:
+  # mail:
+  #   host: smtp.gmail.com
+  #   port: 587
+  #   username: alerts@yourclinic.com
+  #   password: your-secure-app-password
+  #   properties:
+  #     mail:
+  #       smtp:
+  #         auth: true
+  #         starttls:
+  #           enable: true
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    com.canineai.webapp: DEBUG

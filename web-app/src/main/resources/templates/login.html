@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanineAI - Access Gate</title>
+    
+    <!-- Bootstrap 5 CSS via Webjars -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    
+    <!-- Core and Login specific stylesheets -->
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
+    
+    <!-- Google Identity Services -->
+    <script th:if="${googleClientId != null && !googleClientId.isEmpty() && !googleClientId.startsWith('your-')}" src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <style>
+        .auth-tab {
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            transition: all var(--transition-fast);
+        }
+        .auth-tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+        }
+        .form-group label {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body class="login-body">
+    <button type="button" class="auth-theme-toggle" onclick="CanineUI.toggleTheme()" aria-label="Toggle theme">
+        <i class="fa fa-adjust"></i>
+    </button>
+
+    <div class="login-container">
+        
+        <!-- Platform Logo -->
+        <div class="org-logo-container d-flex justify-content-center mb-3">
+            <div th:replace="~{fragments/components :: logo(64)}"></div>
+        </div>
+
+        <h1 class="h3 font-weight-bold mb-1">CanineAI Platform</h1>
+        <p class="text-secondary small mb-3">Clinical Dental Image Analysis Suite</p>
+        <div class="status-badge status-info px-3 mb-3">Secure clinician access</div>
+
+        <!-- Main Card -->
+        <div class="login-card shadow border border-2 border-primary" style="border-radius: 12px;">
+            <!-- Tabs -->
+            <div class="d-flex justify-content-center mb-4 border-bottom">
+                <div id="tab-login" class="auth-tab active me-3">Sign In</div>
+                <div id="tab-register" class="auth-tab">Sign Up</div>
+            </div>
+
+            <!-- Server-Side Alerts -->
+
+            <!-- Login error -->
+            <div th:if="${param.error}"
+                 class="alert-banner alert-error mb-3"
+                 role="alert">
+                <i class="fa fa-times-circle me-2"></i>
+                Incorrect email or password. Please try again.
+            </div>
+
+            <!-- Registration success — shown on signup tab, JS auto-switches to signin after delay -->
+            <div th:if="${param.registered}"
+                 id="register-success-banner"
+                 class="alert-banner alert-success mb-3"
+                 role="alert">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="fa fa-check-circle"></i>
+                    <strong>Registration Successful</strong>
+                </div>
+                <div class="small">Your account has been created. Redirecting to sign in
+                    <span id="redirect-countdown">3</span>s&hellip;
+                </div>
+            </div>
+
+            <!-- Password Reset Success -->
+            <div th:if="${param.resetSuccess}"
+                 class="alert-banner alert-success mb-3"
+                 role="alert">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="fa fa-check-circle"></i>
+                    <strong>Password Reset Successful</strong>
+                </div>
+                <div class="small">You can now sign in with your new password.</div>
+            </div>
+
+            <!-- Registration error / validation failure -->
+            <div th:if="${param.registerError}"
+                 class="alert-banner alert-error mb-3"
+                 role="alert">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="fa fa-exclamation-circle"></i>
+                    <strong>Unable to create account</strong>
+                </div>
+                <div class="small" th:if="${param.registerMessage != null}"
+                     th:text="${param.registerMessage}"></div>
+                <div class="small" th:if="${param.registerMessage == null}">
+                    Please check your details and try again.
+                </div>
+            </div>
+
+            <!-- Google Sign-In Error -->
+            <div th:if="${param.googleError}"
+                 class="alert-banner alert-error mb-3"
+                 role="alert">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="fa fa-exclamation-circle"></i>
+                    <strong>Google Sign-In Failed</strong>
+                </div>
+                <div class="small" th:if="${param.googleMessage != null}"
+                     th:text="${param.googleMessage}"></div>
+                <div class="small" th:if="${param.googleMessage == null}">
+                    Unable to authenticate with Google. Please try again.
+                </div>
+            </div>
+
+            <!-- Google Sign-In -->
+            <div th:if="${googleClientId != null && !googleClientId.isEmpty() && !googleClientId.startsWith('your-')}" class="mb-3 d-flex justify-content-center">
+                <div id="g_id_onload"
+                     th:attr="data-client_id=${googleClientId}"
+                     data-context="signin"
+                     data-ux_mode="popup"
+                     data-login_uri="/auth/google/callback"
+                     data-auto_prompt="false">
+                </div>
+
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="continue_with"
+                     data-size="large"
+                     data-logo_alignment="left">
+                </div>
+            </div>
+
+            <div th:if="${googleClientId != null && !googleClientId.isEmpty() && !googleClientId.startsWith('your-')}" class="d-flex align-items-center mb-3">
+                <hr class="flex-grow-1">
+                <span class="mx-2 text-secondary small font-weight-bold">OR</span>
+                <hr class="flex-grow-1">
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" th:action="@{/login}" method="POST" class="needs-validation" novalidate>
+                <div class="form-group mb-3 text-start">
+                    <label for="login-username" class="form-label font-weight-bold small">Email</label>
+                    <input type="email" 
+                           id="login-username" 
+                           name="username" 
+                           placeholder="physician@hospital.org" 
+                           class="form-control" 
+                           required>
+                    <div id="login-username-error" class="invalid-feedback mt-1 small" style="display: none;">
+                        Email is required
+                    </div>
+                </div>
+
+                <div class="form-group form-group-password mb-3 text-start">
+                    <label for="login-password" class="form-label font-weight-bold small">Password</label>
+                    <button type="button" id="login-password-toggle" class="password-toggle-btn">SHOW</button>
+                    <input type="password" 
+                           id="login-password" 
+                           name="password" 
+                           placeholder="••••••••" 
+                           class="form-control" 
+                           required>
+                    <div id="login-password-error" class="invalid-feedback mt-1 small" style="display: none;">
+                        Password is required (min 8 characters)
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="form-check text-start">
+                        <input type="checkbox" id="rememberMe" name="rememberMe" class="form-check-input">
+                        <label for="rememberMe" class="form-check-label small text-secondary">Remember Me</label>
+                    </div>
+                    <a href="/forgot-password" class="small font-weight-bold text-primary" style="text-decoration: none;">Forgot Password?</a>
+                </div>
+
+                <button type="submit" id="login-submit-btn" class="btn btn-primary w-100 shadow-sm" disabled>
+                    Sign In to Platform
+                </button>
+            </form>
+
+            <!-- Registration Form -->
+            <form id="register-form" th:action="@{/register}" method="POST" class="needs-validation" style="display: none;" novalidate>
+                <div class="form-group mb-2 text-start">
+                    <label for="reg-fullName" class="form-label font-weight-bold small">Full Name</label>
+                    <input type="text" id="reg-fullName" name="fullName" placeholder="Dr. Jane Doe" class="form-control form-control-sm" required>
+                    <div id="reg-fullName-error" class="invalid-feedback mt-1 small" style="display: none;">
+                        Full name is required
+                    </div>
+                </div>
+
+                <div class="form-group mb-2 text-start">
+                    <label for="reg-username" class="form-label font-weight-bold small">Username</label>
+                    <input type="text" id="reg-username" name="username" placeholder="janesmith" class="form-control form-control-sm" required>
+                    <div id="reg-username-error" class="invalid-feedback mt-1 small" style="display: none;">
+                        Username is required
+                    </div>
+                </div>
+
+                <div class="form-group mb-2 text-start">
+                    <label for="reg-email" class="form-label font-weight-bold small">Email</label>
+                    <input type="email" id="reg-email" name="email" placeholder="jane.doe@hospital.org" class="form-control form-control-sm" required>
+                    <div id="reg-email-error" class="invalid-feedback mt-1 small" style="display: none;">
+                        Please enter a valid email address
+                    </div>
+                </div>
+
+                <div class="form-group mb-2 text-start">
+                    <label for="reg-phone" class="form-label font-weight-bold small">Mobile Number</label>
+                    <div class="input-group input-group-sm">
+                        <select id="reg-phone-code" name="phoneCode" class="form-select bg-light" style="max-width: 95px;">
+                            <option value="+1">+1 (US)</option>
+                            <option value="+91" selected>+91 (IN)</option>
+                            <option value="+44">+44 (UK)</option>
+                            <option value="+61">+61 (AU)</option>
+                            <option value="+971">+971 (AE)</option>
+                            <option value="+81">+81 (JP)</option>
+                            <option value="+49">+49 (DE)</option>
+                            <option value="+33">+33 (FR)</option>
+                        </select>
+                        <input type="tel" id="reg-phone" name="phone" placeholder="98765 43210" class="form-control" required>
+                    </div>
+                    <div id="reg-phone-error" class="invalid-feedback mt-1 small" style="display: none;">
+                        Mobile number is required
+                    </div>
+                </div>
+
+                <!-- Professional information moved to Profile Settings; removed from Signup -->
+
+
+
+                <div class="form-group form-group-password mb-2 text-start">
+                    <label for="reg-password" class="form-label font-weight-bold small">Security Password</label>
+                    <button type="button" id="reg-password-toggle" class="password-toggle-btn">SHOW</button>
+                    <input type="password" id="reg-password" name="password" placeholder="••••••••" class="form-control form-control-sm" required>
+                    <div id="reg-password-error" class="invalid-feedback mt-1 small" style="display: none;">
+                        Password is required (min 8 characters)
+                    </div>
+                </div>
+
+                <div class="form-group form-group-password mb-3 text-start">
+                    <label for="reg-confirmPassword" class="form-label font-weight-bold small">Confirm Password</label>
+                    <input type="password" id="reg-confirmPassword" name="confirmPassword" placeholder="••••••••" class="form-control form-control-sm" required>
+                    <div id="reg-confirmPassword-error" class="invalid-feedback mt-1 small" style="display: none;">
+                        Passwords do not match
+                    </div>
+                </div>
+                
+                <div class="form-group mb-2 text-start">
+                    <label for="reg-securityQuestion" class="form-label font-weight-bold small">Security Question</label>
+                    <input type="text" id="reg-securityQuestion" name="securityQuestion" placeholder="e.g. What is your mother's maiden name?" class="form-control form-control-sm" required>
+                    <div id="reg-securityQuestion-error" class="invalid-feedback mt-1 small" style="display: none;">
+                        Security question is required
+                    </div>
+                </div>
+
+                <div class="form-group mb-3 text-start">
+                    <label for="reg-securityAnswer" class="form-label font-weight-bold small">Security Answer</label>
+                    <input type="text" id="reg-securityAnswer" name="securityAnswer" placeholder="Your Answer" class="form-control form-control-sm" required>
+                    <div id="reg-securityAnswer-error" class="invalid-feedback mt-1 small" style="display: none;">
+                        Security answer is required
+                    </div>
+                </div>
+
+                <button type="submit" id="register-submit-btn" class="btn btn-primary w-100 shadow-sm" disabled>
+                    Complete Registration
+                </button>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="login-footer">
+            <div>CanineAI Suite v1.0.0</div>
+            <div class="mt-1">
+                <a href="#">Privacy Policy</a>
+                <span class="mx-1 text-muted">•</span>
+                <a href="#">Terms & Conditions</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI helper modules -->
+    <div th:replace="~{fragments/components :: scripts}"></div>
+    <script th:src="@{/js/login.js}"></script>
+</body>
+</html>

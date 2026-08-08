@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <script th:fragment="themeScript">
+        (function() {
+            const storedTheme = localStorage.getItem('canineai-theme');
+            const currentTheme = (storedTheme === 'dark' || storedTheme === 'light') ? storedTheme : 'light';
+            const isDark = currentTheme === 'dark';
+            document.documentElement.classList.toggle('dark-theme', isDark);
+            document.documentElement.style.colorScheme = currentTheme;
+            document.documentElement.dataset.theme = currentTheme;
+            const currentFont = localStorage.getItem('canineai-font-size') || 'medium';
+            document.documentElement.classList.remove('font-size-sm', 'font-size-md', 'font-size-lg');
+            if (currentFont === 'small') {
+                document.documentElement.classList.add('font-size-sm');
+            } else if (currentFont === 'large') {
+                document.documentElement.classList.add('font-size-lg');
+            } else {
+                document.documentElement.classList.add('font-size-md');
+            }
+        })();
+    </script>
+</head>
+<body>
+
+    <!-- ========================================================
+         BRAND LOGO FRAGMENT
+         ======================================================== -->
+    <div th:fragment="logo(size)" class="d-flex align-items-center d-inline-block">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" th:width="${size}" th:height="${size}" style="color: var(--primary); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+            <circle cx="12" cy="12" r="10" stroke-opacity="0.15" stroke-width="3"></circle>
+            <circle cx="12" cy="12" r="7" stroke-width="1.5"></circle>
+            <path d="M12 5 C15 9, 14 16, 12 19 C10 16, 9 9, 12 5 Z" fill="currentColor"></path>
+        </svg>
+    </div>
+
+    <!-- ========================================================
+         UNIFIED TOP HEADER FRAGMENT
+         ======================================================== -->
+    <nav th:fragment="header" class="navbar navbar-expand-lg border-bottom py-1 fixed-top shadow no-print" style="border-bottom: 2px solid var(--primary) !important;">
+        <div class="container-fluid">
+            <!-- Hamburger Menu Button -->
+            <button id="sidebar-toggle-btn" class="btn btn-link text-dark me-2 no-print" type="button" th:if="${session.authenticated != null}">
+                <i class="fa fa-bars"></i>
+            </button>
+
+            <!-- Brand Logo -->
+            <a class="navbar-brand font-weight-bold d-flex align-items-center" href="/home">
+                <div th:replace="~{fragments/components :: logo(32)}"></div>
+                <span class="font-weight-black ms-2 text-dark">CanineAI</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="topNavbar">
+                <ul class="navbar-nav align-items-center ms-auto">
+                    <!-- Adjust/Theme Switch -->
+                    <li th:if="${session.authenticated != null}" class="nav-item me-2">
+                        <button class="btn btn-link text-muted nav-link" onclick="CanineUI.toggleTheme()" title="Toggle Theme">
+                            <i class="fa fa-adjust"></i>
+                        </button>
+                    </li>
+
+                    <!-- Notifications -->
+                    <li th:if="${session.authenticated != null}" class="nav-item position-relative me-3">
+                        <a class="nav-link" href="/notifications">
+                            <i class="fa fa-bell text-muted"></i>
+                            <span th:if="${session.unreadCount != null && session.unreadCount > 0}" class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-danger" th:text="${session.unreadCount}">5</span>
+                        </a>
+                    </li>
+
+                    <!-- Profile Dropdown Menu -->
+                    <li th:if="${session.authenticated != null}" class="nav-item dropdown me-2">
+                        <button class="nav-link dropdown-toggle d-flex align-items-center border-0 bg-transparent" type="button" id="profileDropdown" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false">
+                            <div class="bg-primary-subtle text-primary font-weight-bold rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                <span th:text="${session.doctorName != null ? #strings.substring(session.doctorName, #strings.indexOf(session.doctorName, ' ') + 1, #strings.indexOf(session.doctorName, ' ') + 2) : 'D'}">D</span>
+                            </div>
+                            <span class="small font-weight-bold text-dark" th:text="${session.doctorName}">Dr. Allan Green</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2 mt-2" aria-labelledby="profileDropdown" style="border-radius: var(--radius-md); min-width: 260px; z-index: 1080;">
+                            <!-- Clinician details block -->
+                            <li class="dropdown-header text-start py-3 border-bottom mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary text-white font-weight-bold rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px; font-size: 16px;">
+                                        <span th:text="${session.doctorName != null ? #strings.substring(session.doctorName, #strings.indexOf(session.doctorName, ' ') + 1, #strings.indexOf(session.doctorName, ' ') + 2) : 'D'}">D</span>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 font-weight-bold text-dark" th:text="${session.doctorName}">Dr. Allan Green</h6>
+                                        <span class="small text-secondary block" th:text="${session.organizationName}">Metro Dental Diagnostics</span>
+                                        <div class="d-flex gap-1 mt-1">
+                                            <span class="badge bg-primary-subtle text-primary font-weight-bold" style="font-size: 8.5px;" th:text="${session.role ?: 'Role unavailable'}">Role</span>
+                                            <span class="badge bg-info-subtle text-info font-weight-bold" style="font-size: 8.5px;" th:text="${session.department ?: 'Department unavailable'}">Dept</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><a class="dropdown-item py-2 rounded small" href="/settings"><i class="fa fa-user me-2 text-muted"></i> My Profile</a></li>
+                            <li><a class="dropdown-item py-2 rounded small" href="/settings"><i class="fa fa-cog me-2 text-muted"></i> Account Settings</a></li>
+                            <li><a class="dropdown-item py-2 rounded small" href="/settings"><i class="fa fa-shield-alt me-2 text-muted"></i> Security</a></li>
+                            <li><a class="dropdown-item py-2 rounded small" href="/settings"><i class="fa fa-bell me-2 text-muted"></i> Notification Preferences</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item py-2 rounded small" href="#"><i class="fa fa-question-circle me-2 text-muted"></i> Help</a></li>
+                            <li><a class="dropdown-item py-2 rounded small" href="/settings"><i class="fa fa-info-circle me-2 text-muted"></i> About</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item py-2 rounded small text-danger font-weight-bold" href="/logout"><i class="fa fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Sign in / Sign up for guest users -->
+                    <li th:if="${session.authenticated == null}" class="nav-item me-2">
+                        <a class="btn btn-outline-primary btn-sm px-3 rounded-pill" href="/login">Login</a>
+                    </li>
+                    <li th:if="${session.authenticated == null}" class="nav-item">
+                        <a class="btn btn-primary btn-sm px-3 rounded-pill" href="/login#signup">Sign Up</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========================================================
+         UNIFIED SIDEBAR NAVIGATION FRAGMENT
+         ======================================================== -->
+    <nav th:fragment="sidebar(activePage)" class="col-md-3 col-lg-2 d-md-block sidebar border-right vh-100 position-sticky pt-3 d-none d-md-block no-print">
+        <div class="position-sticky sidebar-sticky">
+            <ul class="nav flex-column gap-2 px-2">
+                <!-- Standard Modules -->
+                <li class="nav-item">
+                    <a class="nav-link text-start w-100 btn border-0 py-2" 
+                       th:classappend="${activePage == 'dashboard' || activePage == 'home' ? 'active btn-primary text-white shadow-sm fw-bold' : 'text-dark btn-link'}" 
+                       href="/home">
+                        <i class="fa fa-th-large fa-fw me-2" th:classappend="${activePage == 'dashboard' || activePage == 'home' ? 'text-white' : 'text-muted'}"></i> <span>Home</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-start w-100 btn border-0 py-2" 
+                       th:classappend="${activePage == 'patients' ? 'active btn-primary text-white shadow-sm fw-bold' : 'text-dark btn-link'}" 
+                       href="/patients">
+                        <i class="fa fa-user-injured fa-fw me-2" th:classappend="${activePage == 'patients' ? 'text-white' : 'text-muted'}"></i> <span>Patients</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-start w-100 btn border-0 py-2" 
+                       th:classappend="${activePage == 'upload' ? 'active btn-primary text-white shadow-sm fw-bold' : 'text-dark btn-link'}" 
+                       href="/upload">
+                        <i class="fa fa-cloud-upload-alt fa-fw me-2" th:classappend="${activePage == 'upload' ? 'text-white' : 'text-muted'}"></i> <span>Upload CBCT</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-start w-100 btn border-0 py-2" 
+                       th:classappend="${activePage == 'analysis' ? 'active btn-primary text-white shadow-sm fw-bold' : 'text-dark btn-link'}" 
+                       href="/analysis">
+                        <i class="fa fa-microscope fa-fw me-2" th:classappend="${activePage == 'analysis' ? 'text-white' : 'text-muted'}"></i> <span>AI Analysis</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-start w-100 btn border-0 py-2" 
+                       th:classappend="${activePage == 'reports' ? 'active btn-primary text-white shadow-sm fw-bold' : 'text-dark btn-link'}" 
+                       href="/reports">
+                        <i class="fa fa-file-medical-alt fa-fw me-2" th:classappend="${activePage == 'reports' ? 'text-white' : 'text-muted'}"></i> <span>Reports</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-start w-100 btn border-0 py-2" 
+                       th:classappend="${activePage == 'history' ? 'active btn-primary text-white shadow-sm fw-bold' : 'text-dark btn-link'}" 
+                       href="/history">
+                        <i class="fa fa-history fa-fw me-2" th:classappend="${activePage == 'history' ? 'text-white' : 'text-muted'}"></i> <span>History</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-start w-100 btn border-0 py-2" 
+                       th:classappend="${activePage == 'settings' ? 'active btn-primary text-white shadow-sm fw-bold' : 'text-dark btn-link'}" 
+                       href="/settings">
+                        <i class="fa fa-cog fa-fw me-2" th:classappend="${activePage == 'settings' ? 'text-white' : 'text-muted'}"></i> <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ========================================================
+         BUTTONS
+         ======================================================== -->
+    <!-- Filled Button -->
+    <button th:fragment="button(text, id)"
+            type="submit"
+            th:id="${id}"
+            class="btn btn-primary shadow-sm canine-btn">
+        <span th:text="${text}">Submit</span>
+    </button>
+
+    <!-- Outlined Button -->
+    <button th:fragment="button-outlined(text, id)"
+            type="button"
+            th:id="${id}"
+            class="btn btn-outline-primary canine-btn">
+        <span th:text="${text}">Cancel</span>
+    </button>
+
+
+    <!-- ========================================================
+         INPUT TEXT FIELDS
+         ======================================================== -->
+    <div th:fragment="input(label, name, id, placeholder)" class="form-group mb-3">
+        <label th:for="${id}" class="form-label font-weight-bold" th:text="${label}">Input Label</label>
+        <input type="text"
+               th:id="${id}"
+               th:name="${name}"
+               th:placeholder="${placeholder}"
+               class="form-control" />
+    </div>
+
+    <!-- Password Input Field -->
+    <div th:fragment="input-password(label, name, id)" class="form-group mb-3">
+        <label th:for="${id}" class="form-label font-weight-bold" th:text="${label}">Password</label>
+        <input type="password"
+               th:id="${id}"
+               th:name="${name}"
+               placeholder="••••••••"
+               class="form-control" />
+    </div>
+
+
+    <!-- ========================================================
+         STATUS CHIP / BADGE
+         ======================================================== -->
+    <span th:fragment="status-chip(text, type)"
+          th:class="'status-badge status-' + ${type}"
+          th:text="${text}">
+        Success
+    </span>
+
+
+    <!-- ========================================================
+         STAT CARDS / METRICS
+         ======================================================== -->
+    <div th:fragment="stat-card(title, value, iconClass)" class="card p-3 shadow-sm mb-3">
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <p class="text-uppercase text-muted small mb-1" th:text="${title}">Active Jobs</p>
+                <h3 class="mb-0 font-weight-bold text-dark" th:text="${value}">12</h3>
+            </div>
+            <div class="icon-wrapper">
+                <i th:class="${iconClass} + ' fa-2x text-primary'"></i>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================================
+         LOADERS
+         ======================================================== -->
+    <!-- Spinner -->
+    <div th:fragment="loader()" class="d-flex justify-content-center p-3">
+        <div class="spinner-loader"></div>
+    </div>
+
+    <!-- Skeleton Load Grid Block -->
+    <div th:fragment="skeleton-row(height)" class="mb-2">
+        <div class="skeleton-box" th:style="'height: ' + ${height} + ';'"></div>
+    </div>
+
+
+    <!-- ========================================================
+         CONFIRMATION / DELETE DIALOG (MODAL)
+         ======================================================== -->
+    <div th:fragment="modal(id, title, message, actionText, actionClass)"
+         th:id="${id}"
+         class="modal fade"
+         tabindex="-1"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: var(--radius-lg); border: none; box-shadow: var(--shadow-lg);">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-weight-bold" th:text="${title}">Confirm Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p th:text="${message}">Are you sure you want to perform this task?</p>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" th:class="'btn ' + ${actionClass}" th:text="${actionText}">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unified Core Scripts Fragment -->
+    <div th:fragment="scripts">
+        <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+        <script th:src="@{/js/i18n.js}"></script>
+        <script th:src="@{/js/theme-helpers.js}"></script>
+    </div>
+
+</body>
+</html>

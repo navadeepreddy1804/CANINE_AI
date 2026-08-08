@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  DEBUG-ONLY network security config.
+  Overrides the main/res/xml/network_security_config.xml for debug builds only.
+
+  Allows cleartext HTTP traffic to all hosts so that physical devices on the
+  developer's LAN can reach the Spring Boot backend over http://192.168.x.x:8080
+  without a TLS certificate.
+
+  This file is NEVER included in release builds — the release variant uses the
+  strict main config (cleartextTrafficPermitted="false" for all non-local hosts).
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

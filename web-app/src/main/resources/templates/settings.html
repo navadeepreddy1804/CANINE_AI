@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <title>CanineAI - Profile & Settings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/components :: header}"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div th:replace="~{fragments/components :: sidebar(activePage='settings')}"></div>
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                    <h1 class="h2 font-weight-bold text-dark">Profile & Settings</h1>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-12 col-lg-6">
+                        <div class="card shadow-sm p-4 mb-4 border-0" style="border-radius: 12px; background-color: var(--card-bg) !important;">
+                            <h3 class="h5 font-weight-bold mb-4 text-primary"><i class="fa fa-user-md me-2"></i> PROFILE</h3>
+                            
+                            <div class="mb-3">
+                                <label class="text-muted small fw-bold text-uppercase mb-1">Doctor Name</label>
+                                <div class="fs-5 fw-bold text-dark" th:text="${not #strings.isEmpty(profile.fullName) ? profile.fullName : 'Not configured'}">Not configured</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="text-muted small fw-bold text-uppercase mb-1">Doctor ID</label>
+                                    <div class="fw-bold text-dark" th:text="${not #strings.isEmpty(profile.username) ? profile.username : 'Not configured'}">Not configured</div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-muted small fw-bold text-uppercase mb-1">Role</label>
+                                    <div class="fw-bold text-dark" th:text="${not #strings.isEmpty(profile.role) ? profile.role : 'Not configured'}">Not configured</div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="text-muted small fw-bold text-uppercase mb-1">Email</label>
+                                    <div class="fw-bold text-dark" th:text="${not #strings.isEmpty(profile.email) ? profile.email : 'Not configured'}">Not configured</div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-muted small fw-bold text-uppercase mb-1">Account Status</label>
+                                    <div class="fw-bold text-success"><i class="fa fa-check-circle me-1"></i> Active</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm p-4 mb-4 border-0" style="border-radius: 12px; background-color: var(--card-bg) !important;">
+                            <h3 class="h5 font-weight-bold mb-4 text-primary"><i class="fa fa-sliders me-2"></i> CLINICAL WORKSPACE</h3>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+                                <label class="form-check-label fw-bold text-dark" for="darkModeSwitch">Dark Mode Interface</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="autoReportSwitch" checked>
+                                <label class="form-check-label fw-bold text-dark" for="autoReportSwitch">Automatic PDF Report Generation</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="showMeasurementsSwitch" checked>
+                                <label class="form-check-label fw-bold text-dark" for="showMeasurementsSwitch">Show Advanced Morphometrics in Reports</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="card shadow-sm p-4 mb-4 border-0" style="border-radius: 12px; background-color: var(--card-bg) !important;">
+                            <h3 class="h5 font-weight-bold mb-4 text-primary"><i class="fa fa-bell me-2"></i> NOTIFICATIONS</h3>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="notifyAnalysisSwitch" checked>
+                                <label class="form-check-label fw-bold text-dark" for="notifyAnalysisSwitch">Analysis Completed Alerts</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="notifyReportSwitch" checked>
+                                <label class="form-check-label fw-bold text-dark" for="notifyReportSwitch">Report Generated Alerts</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="notifySystemSwitch" checked>
+                                <label class="form-check-label fw-bold text-dark" for="notifySystemSwitch">System Notifications</label>
+                            </div>
+                        </div>
+
+                        <div class="card shadow-sm p-4 mb-4 border-0" style="border-radius: 12px; background-color: var(--card-bg) !important;">
+                            <h3 class="h5 font-weight-bold mb-4 text-primary"><i class="fa fa-shield me-2"></i> SECURITY</h3>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="text-muted small fw-bold text-uppercase mb-1">Session</label>
+                                    <div class="fw-bold text-dark">Secure Session</div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-muted small fw-bold text-uppercase mb-1">Last Login</label>
+                                    <div class="fw-bold text-dark">Today</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-secondary btn-sm mt-2"><i class="fa fa-key me-2"></i>Change Password</button>
+                        </div>
+                        
+                        <div class="card shadow-sm p-4 border-0" style="border-radius: 12px; background-color: var(--card-bg) !important;">
+                            <h3 class="h5 font-weight-bold mb-4 text-primary"><i class="fa fa-info-circle me-2"></i> ABOUT CANINEAI</h3>
+                            <div class="row mb-1">
+                                <div class="col-6 text-muted fw-bold">Application Version:</div>
+                                <div class="col-6 fw-bold text-dark">CanineAI Pro v2.1.0</div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-6 text-muted fw-bold">About:</div>
+                                <div class="col-6 fw-bold text-dark">Enterprise AI Diagnostic Tool</div>
+                            </div>
+                            <div class="row mb-1">
+                                <div class="col-6 text-muted fw-bold">Status:</div>
+                                <div class="col-6 fw-bold text-primary">AI Demo Mode Active</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+    <div th:replace="~{fragments/components :: scripts}"></div>
+    <script th:src="@{/js/settings.js}"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+/* ========================================================
+   CanineAI Patient Management Specific Styles
+   ======================================================== */
+
+.filter-drawer {
+  background: var(--surface);
+  border-left: 1px solid var(--border-color);
+  padding: 24px;
+}
+
+.table-patient-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(11, 110, 253, 0.1);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  margin-right: 12px;
+}
+
+/* Timeline Layout vertical tracking line */
+.timeline-vertical {
+  position: relative;
+  padding-left: 24px;
+  margin-left: 8px;
+  border-left: 2px solid var(--border-color);
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -6px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--primary);
+}
+
+.timeline-vertical-item {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.timeline-vertical-item:last-child {
+  margin-bottom: 0;
+}

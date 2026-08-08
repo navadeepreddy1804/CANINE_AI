@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${isEdit ? 'Edit Patient Profile' : 'Admit New Patient'}">EMR Form</title>
+    
+    <!-- Bootstrap 5 CSS via Webjars -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    
+    <!-- Core stylesheets -->
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/patient.css}">
+</head>
+<body>
+
+    <!-- Unified Navigation Header -->
+    <div th:replace="~{fragments/components :: header}"></div>
+
+    <div class="container py-5">
+        <div class="row justify-content-center text-start">
+            <div class="col-12 col-md-10 col-lg-8">
+                
+                <div class="mb-4">
+                    <a href="/patients" class="btn btn-outline-secondary btn-sm">Cancel</a>
+                </div>
+
+                <div class="card p-4 shadow border border-2 border-primary" style="border-radius: 12px;">
+                    <h2 class="h4 font-weight-bold text-dark mb-1" th:text="${isEdit ? 'Update EMR Profile' : 'Admit Patient Profile'}">EMR Record Form</h2>
+                    <p class="text-secondary small mb-4">Admit diagnostic credentials details. Required inputs are validated in real-time.</p>
+
+                    <div th:if="${errorMessage != null}" class="alert alert-danger alert-dismissible fade show font-weight-medium small mb-4 shadow-sm" role="alert" style="border-radius: 8px; border: 1px solid rgba(220, 38, 38, 0.2); background-color: rgba(254, 242, 242, 0.95); color: #991b1b;">
+                        <i class="fa fa-exclamation-triangle me-2"></i> <span th:text="${errorMessage}">An error occurred</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                    <form id="patient-form" th:action="@{/patients/save}" method="POST" class="needs-validation" novalidate>
+                        <!-- ID placeholder for edits -->
+                        <input type="hidden" name="id" th:value="${patient.id}" />
+
+                        <!-- Full Name -->
+                        <div class="form-group mb-3">
+                            <label for="fullName" class="form-label font-weight-bold small">Patient Full Name</label>
+                            <input type="text" id="fullName" name="fullName" th:value="${patient.fullName}" placeholder="John Doe" class="form-control" required />
+                            <div id="fullName-error" class="invalid-feedback mt-1 small" style="display:none;">Full name is required</div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <!-- Age -->
+                            <div class="col-md-6">
+                                <label for="age" class="form-label font-weight-bold small">Age (Years)</label>
+                                <input type="number" id="age" name="age" th:value="${patient.age}" placeholder="34" class="form-control" required />
+                                <div id="age-error" class="invalid-feedback mt-1 small" style="display:none;">Age is required</div>
+                            </div>
+                            <!-- Gender -->
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label font-weight-bold small">Gender</label>
+                                <select id="gender" name="gender" class="form-control">
+                                    <option value="Male" th:selected="${patient.gender == 'Male'}">Male</option>
+                                    <option value="Female" th:selected="${patient.gender == 'Female'}">Female</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <!-- Date of Birth -->
+                            <div class="col-md-6">
+                                <label for="dob" class="form-label font-weight-bold small">Date of Birth</label>
+                                <input type="date" id="dob" name="dob" th:value="${patient.dob}" class="form-control" required />
+                                <div id="dob-error" class="invalid-feedback mt-1 small" style="display:none;">Date of birth is required</div>
+                            </div>
+                            <!-- Blood Group -->
+                            <div class="col-md-6">
+                                <label for="bloodGroup" class="form-label font-weight-bold small">Blood Group</label>
+                                <select id="bloodGroup" name="bloodGroup" class="form-control" required>
+                                    <option value="" disabled th:selected="${patient.bloodGroup == null || patient.bloodGroup == ''}">Select Blood Group</option>
+                                    <option value="A+" th:selected="${patient.bloodGroup == 'A+'}">A+</option>
+                                    <option value="A-" th:selected="${patient.bloodGroup == 'A-'}">A-</option>
+                                    <option value="B+" th:selected="${patient.bloodGroup == 'B+'}">B+</option>
+                                    <option value="B-" th:selected="${patient.bloodGroup == 'B-'}">B-</option>
+                                    <option value="AB+" th:selected="${patient.bloodGroup == 'AB+'}">AB+</option>
+                                    <option value="AB-" th:selected="${patient.bloodGroup == 'AB-'}">AB-</option>
+                                    <option value="O+" th:selected="${patient.bloodGroup == 'O+'}">O+</option>
+                                    <option value="O-" th:selected="${patient.bloodGroup == 'O-'}">O-</option>
+                                </select>
+                                <div id="bloodGroup-error" class="invalid-feedback mt-1 small" style="display:none;">Blood group is required</div>
+                            </div>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="form-group mb-3">
+                            <label for="phone" class="form-label font-weight-bold small">Phone Number</label>
+                            <input type="text" id="phone" name="phone" th:value="${patient.phone}" placeholder="+1 555-0100" class="form-control" required />
+                            <div id="phone-error" class="invalid-feedback mt-1 small" style="display:none;">Phone number is required</div>
+                        </div>
+
+                        <!-- Email Address -->
+                        <div class="form-group mb-3">
+                            <label for="email" class="form-label font-weight-bold small">Email Address</label>
+                            <input type="email" id="email" name="email" th:value="${patient.email}" placeholder="patient@email.com" class="form-control" />
+                            <div id="email-error" class="invalid-feedback mt-1 small" style="display:none;">Invalid email format</div>
+                        </div>
+
+                        <!-- Orthodontist -->
+                        <div class="form-group mb-3">
+                            <label for="orthodontist" class="form-label font-weight-bold small">Attending Orthodontist</label>
+                            <input type="text" id="orthodontist" name="orthodontist" th:value="${patient.orthodontist}" placeholder="Dr. Allan Green" class="form-control" />
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="form-group mb-4">
+                            <label for="medicalNotes" class="form-label font-weight-bold small">Clinical Medical Notes</label>
+                            <textarea id="medicalNotes" name="medicalNotes" th:text="${patient.medicalNotes}" placeholder="Write medical comments..." class="form-control" rows="4"></textarea>
+                        </div>
+
+                        <!-- Buttons actions -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="/patients" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary shadow-sm" th:text="${isEdit ? 'Update EMR Profile' : 'Admit Patient'}">Save</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- UI helper modules -->
+    <div th:replace="~{fragments/components :: scripts}"></div>
+    <script th:src="@{/js/patient.js}"></script>
+    <script>
+        // Prevent duplicate form submissions
+        document.addEventListener('submit', function (e) {
+            if (e.target.tagName.toLowerCase() === 'form') {
+                const submitBtns = e.target.querySelectorAll('button[type="submit"]');
+                submitBtns.forEach(btn => {
+                    if (btn.disabled) {
+                        e.preventDefault();
+                    } else {
+                        btn.disabled = true;
+                        if (!btn.innerHTML.includes('spinner')) {
+                            const originalText = btn.innerHTML;
+                            btn.dataset.originalText = originalText;
+                            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' + originalText;
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

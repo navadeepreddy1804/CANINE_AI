@@ -1,0 +1,149 @@
+/* ========================================================
+   CanineAI PACS Upload & Workspace Styles
+   ======================================================== */
+
+/* Drag & Drop medical dropzone */
+.medical-dropzone {
+  border: 2px dashed rgba(11, 110, 253, 0.4);
+  background-color: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.medical-dropzone:hover, .medical-dropzone.dragover {
+  border-color: var(--primary);
+  background-color: rgba(11, 110, 253, 0.05);
+}
+
+.dropzone-icon {
+  font-size: 40px;
+  color: var(--primary);
+  margin-bottom: 16px;
+}
+
+/* DICOM slice preview dark container */
+.pacs-viewer-dark {
+  background-color: #090D16;
+  border-radius: var(--radius-lg);
+  border: 1px solid #1E293B;
+  padding: 24px;
+  min-height: 480px;
+}
+
+.viewer-shell {
+  display: grid;
+  gap: 16px;
+}
+
+.viewer-main {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+  border: 1px solid #1e293b;
+  overflow: hidden;
+  padding: 12px;
+}
+
+.viewer-main-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 12px;
+  background-color: #000;
+  cursor: zoom-in;
+}
+
+.viewer-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.75);
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.viewer-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.viewer-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.viewer-controls-row .form-range {
+  flex: 1;
+}
+
+.viewer-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.slice-thumbnail {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.slice-thumbnail:hover,
+.slice-thumbnail.active {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.slice-thumbnail-image {
+  width: 100%;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 6px;
+  background-color: #000;
+}
+
+.slice-thumbnail-label {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* DICOM Tag Tables */
+.dicom-tag-table {
+  font-size: 12.5px;
+}
+
+.dicom-tag-table th {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.tag-element-code {
+  color: var(--primary);
+  font-family: monospace;
+  font-weight: 600;
+}

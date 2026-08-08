@@ -1,0 +1,22 @@
+# NIfTI-to-DICOM Conversion Utility Configuration
+
+# Input path containing NIfTI (.nii, .nii.gz) files recursively
+input_dir: "D:\\DentalDatasets"
+
+# Output path where DICOM series will be generated
+output_dir: "D:\\DentalDatasets_Output"
+
+# Performance and Execution parameters
+workers: 8
+overwrite: false
+verify: true
+
+# Configurable Placeholder Metadata (for clinician review and labeling)
+patient_metadata:
+  patient_name: "Anonymized Patient"
+  patient_id: "ANON-STS-3D"
+  institution_name: "Metro Dental Diagnostics"
+  study_description: "Orthodontic CBCT Imaging Study"
+  referring_physician_name: "Dr. Darshan Shah"
+  modality: "CT"
+  patient_position: "HFS"

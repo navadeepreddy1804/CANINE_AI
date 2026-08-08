@@ -1,0 +1,34 @@
+# Multi-stage build for Spring Boot Backend
+FROM maven:3.9.8-eclipse-temurin-21 AS build
+WORKDIR /workspace
+
+# Copy Maven POMs
+COPY pom.xml .
+COPY shared-api/pom.xml shared-api/
+COPY backend/pom.xml backend/
+
+# Fetch Maven dependencies (caching layer)
+RUN mvn dependency:go-offline -B -pl backend,shared-api -am
+
+# Copy source structures
+COPY shared-api/src shared-api/src
+COPY backend/src backend/src
+
+# Compile and package jar package
+RUN mvn clean package -DskipTests -B -pl backend,shared-api -am
+
+# Lightweight execution stage
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+RUN groupadd -g 10002 backenduser && \
+    useradd -u 10002 -g backenduser -s /bin/sh -m backenduser
+
+# Copy built artifacts from compiler stage
+COPY --from=build --chown=backenduser:backenduser /workspace/backend/target/backend-1.0.0-SNAPSHOT.jar app.jar
+
+USER backenduser
+EXPOSE 8080
+ENV SPRING_PROFILES_ACTIVE=prod
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

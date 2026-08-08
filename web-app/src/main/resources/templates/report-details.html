@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Details | CanineAI</title>
+    
+    <!-- Bootstrap 5 CSS via Webjars -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Unified Design System Theme -->
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    
+    <style>
+        .report-markdown-view {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #334155;
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            white-space: pre-wrap;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+        [data-theme="dark"] .report-markdown-view {
+            color: #cbd5e1;
+            background: rgba(15, 23, 42, 0.4);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Unified Navigation Header -->
+    <div th:replace="~{fragments/components :: header}"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            
+            <!-- Unified Sidebar Navigation -->
+            <div th:replace="~{fragments/components :: sidebar(activePage='reports')}"></div>
+
+            <!-- Main Report Details Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content">
+                
+                <!-- Headline Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="h3 font-weight-black text-dark mb-1">Persisted Clinical Report</h2>
+                        <p class="text-secondary small font-monospace mb-0">ID: <span th:text="${report.id}"></span></p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-secondary shadow-sm" th:href="@{/reports}">
+                            <i class="fa fa-arrow-left me-1"></i> Back
+                        </a>
+                        <button class="btn btn-outline-primary shadow-sm" type="button" onclick="window.print()">
+                            <i class="fa fa-print me-1"></i> Print
+                        </button>
+                        <a class="btn btn-primary shadow-sm" th:href="@{/reports/{id}/pdf(id=${report.id})}">
+                            <i class="fa fa-file-pdf me-1"></i> Download PDF
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <section class="card shadow-sm border-0 h-100">
+                            <div class="card-body">
+                                <h3 class="h6 font-weight-bold text-dark border-bottom pb-2 mb-3">
+                                    <i class="fa fa-server me-2 text-primary"></i> Report Metadata
+                                </h3>
+                                <dl class="row mb-0 small">
+                                    <dt class="col-sm-5 text-muted fw-normal">Report ID</dt>
+                                    <dd class="col-sm-7 font-monospace text-truncate" th:title="${report.id}" th:text="${report.id}"></dd>
+                                    
+                                    <dt class="col-sm-5 text-muted fw-normal">Study ID</dt>
+                                    <dd class="col-sm-7 font-monospace text-truncate" th:title="${report.studyId}" th:text="${report.studyId}"></dd>
+                                    
+                                    <dt class="col-sm-5 text-muted fw-normal">Status</dt>
+                                    <dd class="col-sm-7">
+                                        <span class="status-badge status-success" th:text="${report.status}"></span>
+                                    </dd>
+                                    
+                                    <dt class="col-sm-5 text-muted fw-normal">Template Ver.</dt>
+                                    <dd class="col-sm-7" th:text="${report.templateVersion}"></dd>
+                                    
+                                    <dt class="col-sm-5 text-muted fw-normal">Provider</dt>
+                                    <dd class="col-sm-7" th:text="${report.activeProvider}"></dd>
+                                </dl>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="col-lg-8">
+                        <section class="card shadow-sm border-0 h-100">
+                            <div class="card-body p-4">
+                                <h3 class="h5 font-weight-bold text-dark mb-4 border-bottom pb-3">
+                                    <i class="fa fa-file-alt me-2 text-primary"></i> Generated Clinical Findings
+                                </h3>
+                                <div class="report-markdown-view" th:text="${report.reportMarkdown}"></div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- UI helper modules -->
+    <div th:replace="~{fragments/components :: scripts}"></div>
+</body>
+</html>

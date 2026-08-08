@@ -1,0 +1,37 @@
+/* ========================================================
+   CanineAI Settings Dashboard Styles
+   ======================================================== */
+
+.settings-card-header {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.device-session-row {
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 0;
+}
+
+.device-session-row:last-child {
+  border-bottom: none;
+}
+
+.device-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background-color: var(--light-bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-right: 12px;
+}
+
+.settings-slider-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanineAI - Splash Screen</title>
+    
+    <!-- Bootstrap 5 CSS via Webjars -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    
+    <!-- Custom Design Tokens Theme and Splash styles -->
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/splash.css}">
+</head>
+<body class="splash-body">
+    <button type="button" class="auth-theme-toggle" onclick="CanineUI.toggleTheme()" aria-label="Toggle theme">
+        <i class="fa fa-adjust"></i>
+    </button>
+
+    <!-- Modern glassmorphic center card -->
+    <div class="glass-card">
+        <!-- Logo Icon Area (Monogram) -->
+        <div class="logo-container">
+            <span class="logo-letter">C</span>
+        </div>
+
+        <h1 class="h3 font-weight-bold text-dark mt-4 mb-2">CanineAI</h1>
+        <p class="text-secondary small px-3">AI-Assisted CBCT Dental Analysis Platform</p>
+
+        <!-- Spinner & Message indicators -->
+        <div class="d-flex justify-content-center mt-5 mb-3">
+            <div class="spinner-loader"></div>
+        </div>
+
+        <div id="splash-loading-text" class="loading-text">
+            Initializing AI Engine...
+        </div>
+
+        <!-- Linear Progress bar timeline -->
+        <div class="progress-bar-container">
+            <div id="splash-progress-fill" class="progress-bar-fill"></div>
+        </div>
+    </div>
+
+    <!-- Layout Footer -->
+    <div class="splash-footer">
+        <div>v1.0.0</div>
+        <div class="mt-1">© 2026 CanineAI. All rights reserved.</div>
+    </div>
+
+    <!-- UI Core Scripts -->
+    <div th:replace="~{fragments/components :: scripts}"></div>
+    <script th:src="@{/js/splash.js}"></script>
+</body>
+</html>

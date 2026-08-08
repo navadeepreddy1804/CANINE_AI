@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script th:replace="~{fragments/components :: themeScript}"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanineAI - Clinical Audit Timeline</title>
+    
+    <!-- Bootstrap 5 CSS via Webjars -->
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Unified Design System Theme, Dashboard & Notification CSS -->
+    <link rel="stylesheet" th:href="@{/css/theme.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link class="styles" rel="stylesheet" th:href="@{/css/notification.css}">
+</head>
+<body>
+
+    <!-- Unified Navigation Header -->
+    <div th:replace="~{fragments/components :: header}"></div>
+
+    <div class="container-fluid">
+        <div class="row">
+            
+            <!-- Unified Sidebar Navigation -->
+            <div th:replace="~{fragments/components :: sidebar(activePage='history')}"></div>
+
+            <!-- Main Timeline content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content">
+                
+                <!-- Headline Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4 text-start">
+                    <div>
+                        <h2 class="h3 font-weight-black text-dark mb-1">Clinical Audit Log</h2>
+                        <p class="text-secondary small mb-0">Review chronological changes, patient admissions, and AI executions.</p>
+                    </div>
+                </div>
+
+                <!-- Searching & Filter actions row -->
+                <div class="card p-3 mb-4">
+                    <form th:action="@{/timeline}" method="GET" class="row g-2 align-items-center">
+                        <div class="col-md-6 col-lg-7">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="fa fa-search text-muted"></i></span>
+                                <input type="text" name="search" th:value="${search}" class="form-control bg-light border-0" placeholder="Search logs by Patient EMR Name, Operator...">
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-lg-3">
+                            <button type="button" id="timeline-filter-toggle" class="btn btn-outline-secondary w-100">
+                                <i class="fa fa-filter me-2"></i> Category Filters
+                            </button>
+                        </div>
+                        <div class="col-md-2 col-lg-2">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        </div>
+
+                        <!-- Collapsible Filter Drawer -->
+                        <div id="timeline-filter-drawer" class="col-12 mt-3 pt-3 border-top d-none">
+                            <div class="row g-3 text-start">
+                                <div class="col-md-6">
+                                    <label class="form-label font-weight-bold small">Category</label>
+                                    <select name="category" class="form-control">
+                                        <option value="">All Categories</option>
+                                        <option value="AI" th:selected="${category == 'AI'}">Artificial Intelligence (AI)</option>
+                                        <option value="Upload" th:selected="${category == 'Upload'}">Scan Upload</option>
+                                        <option value="Patient" th:selected="${category == 'Patient'}">Patient EMR</option>
+                                        <option value="Security" th:selected="${category == 'Security'}">Security & Settings</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Timeline Layout card -->
+                <div class="card p-4">
+                    <div class="audit-timeline-container text-start">
+                        <div th:each="t : ${timeline}" class="audit-timeline-row">
+                            <div class="audit-timeline-node"></div>
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h4 class="h6 mb-0 font-weight-bold text-dark" th:text="${t.action}">Analysis completed</h4>
+                                    <p class="text-secondary small mb-1" th:text="${t.description}">Description text details</p>
+                                    <span class="small text-muted font-weight-bold" th:text="'Operator: ' + ${t.user} + ' • Patient EMR: ' + ${t.patientName}">User</span>
+                                </div>
+                                <span class="small text-muted" th:text="${t.timestamp}">Today, 10:30 AM</span>
+                            </div>
+                        </div>
+                        <div th:if="${#lists.isEmpty(timeline)}" class="text-center p-5 text-secondary">
+                            <i class="fa fa-history fa-3x mb-3 text-muted"></i>
+                            <p class="mb-0">No audit logs match selection.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- UI Core webjars & helper scripts -->
+    
+    <div th:replace="~{fragments/components :: scripts}"></div>
+    <script th:src="@{/js/notification.js}"></script>
+</body>
+</html>
