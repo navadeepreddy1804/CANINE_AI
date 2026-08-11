@@ -135,7 +135,8 @@ fun StudyCbctViewer(
                 .border(1.dp, Color(0xFF1E293B), MaterialTheme.shapes.large),
             contentAlignment = Alignment.Center
         ) {
-            val imageUrl = "http://10.0.2.2:8080/api/v1/studies/${state.studyId}/previews/axial/${state.currentSliceIndex}"
+            val baseUrl = com.canineai.android.data.network.ApiConfig.resolveBaseUrl().removeSuffix("/")
+            val imageUrl = "$baseUrl/studies/${state.studyId}/previews/axial/${state.currentSliceIndex}"
             
             AsyncImage(
                 model = imageUrl,

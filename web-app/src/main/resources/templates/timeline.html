@@ -78,20 +78,29 @@
                 <!-- Timeline Layout card -->
                 <div class="card p-4">
                     <div class="audit-timeline-container text-start">
-                        <div th:each="t : ${timeline}" class="audit-timeline-row">
-                            <div class="audit-timeline-node"></div>
+                        <div th:each="t : ${timeline}" 
+                             class="audit-timeline-row p-3 mb-3 border rounded-3 bg-card-bg shadow-sm cursor-pointer history-row-item" 
+                             th:data-patient-id="${t.patientId}" 
+                             th:data-study-id="${t.studyId}">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
-                                    <h4 class="h6 mb-0 font-weight-bold text-dark" th:text="${t.action}">Analysis completed</h4>
-                                    <p class="text-secondary small mb-1" th:text="${t.description}">Description text details</p>
-                                    <span class="small text-muted font-weight-bold" th:text="'Operator: ' + ${t.user} + ' • Patient EMR: ' + ${t.patientName}">User</span>
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <span class="badge bg-primary px-2 py-1" th:text="${t.prediction != null ? t.prediction : 'COMPLETED'}">IMPACTED</span>
+                                        <span class="fw-bold text-dark" th:text="${t.patientName != null ? t.patientName : 'Patient'}">Patient Name</span>
+                                        <span class="small text-muted" th:text="${t.patientDisplayId != null ? '(' + t.patientDisplayId + ')' : ''}">(PT-00001)</span>
+                                    </div>
+                                    <p class="text-secondary small mb-1" th:text="${'Study: ' + (t.studyDisplayId != null ? t.studyDisplayId : t.studyId) + ' • Operator: ' + (t.createdBy != null ? t.createdBy : 'System')}">Study Info</p>
+                                    <span class="small text-muted font-weight-bold" th:text="${'Confidence: ' + (t.confidence != null ? t.confidence : 'N/A')}">Confidence</span>
                                 </div>
-                                <span class="small text-muted" th:text="${t.timestamp}">Today, 10:30 AM</span>
+                                <div class="text-end">
+                                    <span class="badge bg-success mb-1" th:text="${t.status != null ? t.status : 'Completed'}">Completed</span>
+                                    <div class="small text-muted" th:text="${t.completedAt != null ? #strings.substring(t.completedAt.toString(), 0, 19).replace('T', ' ') : 'Date unavailable'}">08 Aug 2026, 08:32 AM</div>
+                                </div>
                             </div>
                         </div>
                         <div th:if="${#lists.isEmpty(timeline)}" class="text-center p-5 text-secondary">
                             <i class="fa fa-history fa-3x mb-3 text-muted"></i>
-                            <p class="mb-0">No audit logs match selection.</p>
+                            <p class="mb-0">No history logs recorded yet.</p>
                         </div>
                     </div>
                 </div>
@@ -101,8 +110,20 @@
     </div>
 
     <!-- UI Core webjars & helper scripts -->
-    
     <div th:replace="~{fragments/components :: scripts}"></div>
     <script th:src="@{/js/notification.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.history-row-item').forEach(function(row) {
+                row.addEventListener('click', function() {
+                    var patientId = this.getAttribute('data-patient-id');
+                    var studyId = this.getAttribute('data-study-id');
+                    if (patientId && studyId && patientId !== 'null' && studyId !== 'null') {
+                        window.location.href = '/analysis?patientId=' + encodeURIComponent(patientId) + '&studyId=' + encodeURIComponent(studyId);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

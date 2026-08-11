@@ -22,7 +22,8 @@ private val EMAIL_PATTERN = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: CanineRepository
+    private val repository: CanineRepository,
+    private val sessionManager: com.canineai.android.data.local.SessionManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginState())
@@ -40,6 +41,9 @@ class LoginViewModel @Inject constructor(
             is LoginEvent.SubmitLogin -> performLogin()
             is LoginEvent.SubmitGoogleLogin -> performGoogleLogin(event.idToken)
             is LoginEvent.BiometricAuthRequested -> { /* Biometrics disabled for this release */ }
+            is LoginEvent.ServerUrlChanged -> {
+                sessionManager.saveServerUrl(event.serverUrl)
+            }
             is LoginEvent.DismissError -> _state.update { it.copy(apiError = null) }
         }
     }

@@ -272,7 +272,7 @@ public class UploadServiceImpl implements UploadService {
                             .sopInstanceUid("NII-SOP-" + UUID.randomUUID().toString())
                             .studyDate(java.time.LocalDate.now())
                             .studyTime(java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HHmmss")))
-                            .modality("MR")
+                            .modality("CBCT")
                             .studyDescription("NIfTI Scan Volume (" + sampleFile.getFileName() + ")")
                             .manufacturer("NIfTI Loader")
                             .deviceModel("SimpleITK Preprocessor")

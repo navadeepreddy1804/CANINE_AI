@@ -33,6 +33,8 @@ import okhttp3.Response
 import java.io.File
 import java.io.IOException
 
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -49,12 +51,35 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(
         @ApplicationContext context: Context,
+        sessionManager: com.canineai.android.data.local.SessionManager,
         loggingInterceptor: HttpLoggingInterceptor,
         authInterceptor: AuthInterceptor,
         tokenAuthenticator: com.canineai.android.data.network.TokenAuthenticator
     ): OkHttpClient {
         val cacheSize = (10 * 1024 * 1024).toLong() // 10 MB
         val cache = Cache(File(context.cacheDir, "offline_cache"), cacheSize)
+
+        val hostSelectionInterceptor = Interceptor { chain ->
+            var request = chain.request()
+            val customUrl = sessionManager.getServerUrl()
+            if (!customUrl.isNullOrBlank()) {
+                try {
+                    val normalized = ApiConfig.normalizeBaseUrl(customUrl)
+                    val newHttpUrl = normalized.toHttpUrlOrNull()
+                    if (newHttpUrl != null) {
+                        val newUrl = request.url.newBuilder()
+                            .scheme(newHttpUrl.scheme)
+                            .host(newHttpUrl.host)
+                            .port(newHttpUrl.port)
+                            .build()
+                        request = request.newBuilder().url(newUrl).build()
+                    }
+                } catch (e: Exception) {
+                    // fallback to original request
+                }
+            }
+            chain.proceed(request)
+        }
 
         val offlineInterceptor = Interceptor { chain ->
             var request = chain.request()
@@ -83,40 +108,17 @@ object NetworkModule {
                 .build()
         }
 
-        val retryInterceptor = Interceptor { chain ->
-            val request = chain.request()
-            var response: Response? = null
-            var tryCount = 0
-            val maxRetries = 3
-            while (tryCount < maxRetries) {
-                try {
-                    response = chain.proceed(request)
-                    if (response.isSuccessful || (response.code in 400..499 && response.code != 408)) {
-                        return@Interceptor response
-                    }
-                    response.close()
-                } catch (e: Exception) {
-                    if (tryCount >= maxRetries - 1) {
-                        throw e
-                    }
-                }
-                tryCount++
-                Thread.sleep(1000L * tryCount) // Exponential backoff 1s, 2s
-            }
-            chain.proceed(request)
-        }
-
         return OkHttpClient.Builder()
             .cache(cache)
+            .addInterceptor(hostSelectionInterceptor)
             .addInterceptor(offlineInterceptor)
             .addInterceptor(authInterceptor)
             .authenticator(tokenAuthenticator)
-            .addInterceptor(retryInterceptor)
             .addInterceptor(loggingInterceptor)
             .addNetworkInterceptor(networkInterceptor)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(12, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
             .build()
     }
 
@@ -131,7 +133,10 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideCanineApiService(okHttpClient: OkHttpClient): CanineApiService {
+    fun provideCanineApiService(
+        okHttpClient: OkHttpClient,
+        sessionManager: com.canineai.android.data.local.SessionManager
+    ): CanineApiService {
         val isEmulator = android.os.Build.FINGERPRINT.startsWith("generic")
                 || android.os.Build.MODEL.contains("google_sdk")
                 || android.os.Build.MODEL.contains("Emulator")
@@ -139,7 +144,7 @@ object NetworkModule {
                 || android.os.Build.DEVICE.startsWith("emulator")
 
         val baseUrl = ApiConfig.resolveBaseUrl(
-            configuredBaseUrl = null,
+            configuredBaseUrl = sessionManager.getServerUrl(),
             isEmulator = isEmulator
         )
 

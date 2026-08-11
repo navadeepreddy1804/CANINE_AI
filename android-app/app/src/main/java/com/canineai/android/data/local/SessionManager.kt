@@ -51,8 +51,18 @@ class SessionManager @Inject constructor(
 
     fun getSessionExpiration(): Long = prefs.getLong("session_expiration", 0L)
 
+    fun getServerUrl(): String? = prefs.getString("server_url", null)
+
+    fun saveServerUrl(url: String) {
+        prefs.edit().putString("server_url", url).apply()
+    }
+
     fun clearSession() {
+        val serverUrl = getServerUrl()
         prefs.edit().clear().apply()
+        if (serverUrl != null) {
+            saveServerUrl(serverUrl)
+        }
     }
 
     fun hasActiveSession(): Boolean {

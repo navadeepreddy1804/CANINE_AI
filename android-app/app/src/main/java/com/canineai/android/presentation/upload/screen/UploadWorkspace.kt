@@ -22,7 +22,7 @@ import com.canineai.android.presentation.components.CanineIconButton
 import com.canineai.android.presentation.components.CanineErrorState
 import com.canineai.android.presentation.components.CanineEmptyState
 import com.canineai.android.presentation.upload.components.DicomMetadataCard
-import com.canineai.android.presentation.upload.components.DicomThumbnailGrid
+import com.canineai.android.presentation.upload.components.CbctClinicalSliceViewer
 import com.canineai.android.presentation.upload.event.UploadEvent
 import com.canineai.android.presentation.upload.event.UploadUiAction
 import com.canineai.android.presentation.upload.viewmodel.UploadViewModel
@@ -114,7 +114,10 @@ fun UploadWorkspace(
                 // Display selected tab contents
                 when (state.selectedTab) {
                     0 -> {
-                        DicomThumbnailGrid(sliceCount = metadata.sliceCount)
+                        com.canineai.android.presentation.upload.components.CbctClinicalSliceViewer(
+                            studyId = metadata.studyUid,
+                            totalSlices = metadata.sliceCount
+                        )
                     }
                     1 -> {
                         DicomMetadataCard(metadata = metadata)

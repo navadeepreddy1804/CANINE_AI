@@ -33,12 +33,20 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val user = repository.getCurrentUser()
+                val patients = runCatching { repository.getPatients() }.getOrDefault(emptyList())
+                val reports = runCatching { repository.getReports() }.getOrDefault(emptyList())
+                val history = runCatching { repository.getHistory() }.getOrDefault(emptyList())
+
                 _state.update {
                     it.copy(
                         fullName = user.fullName.orEmpty(), email = user.email.orEmpty(),
                         phone = user.phone.orEmpty(), role = user.roleTitle ?: user.role.orEmpty(),
                         hospital = user.hospital.orEmpty(), department = user.department.orEmpty(),
-                        medicalRegNo = user.medicalRegistrationNumber.orEmpty(), apiError = null
+                        medicalRegNo = user.medicalRegistrationNumber.orEmpty(),
+                        activePatientsCount = patients.size,
+                        completedAnalysesCount = history.size,
+                        reportsGeneratedCount = reports.size,
+                        apiError = null
                     )
                 }
             } catch (e: Exception) {

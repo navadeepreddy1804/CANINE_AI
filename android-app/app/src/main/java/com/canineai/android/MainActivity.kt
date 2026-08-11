@@ -24,6 +24,7 @@ import com.canineai.android.presentation.patients.screen.PatientDetailsScreen
 import com.canineai.android.presentation.patients.screen.AddPatientScreen
 import com.canineai.android.presentation.patients.screen.EditPatientScreen
 import com.canineai.android.presentation.upload.screen.UploadScreen
+import com.canineai.android.presentation.upload.screen.CbctPreviewScreen
 import com.canineai.android.presentation.analysis.screen.AnalysisScreen
 import com.canineai.android.presentation.reports.screen.ReportsScreen
 import com.canineai.android.presentation.reports.screen.ReportDetailsScreen
@@ -55,6 +56,13 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
+                    
+                    val handleLogout = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+
                     NavHost(
                         navController = navController,
                         startDestination = Screen.Splash.route
@@ -127,14 +135,11 @@ class MainActivity : ComponentActivity() {
                                 viewModel = dashboardViewModel,
                                 onNavigateToPatients = { navController.navigate(Screen.Patients.route) },
                                 onNavigateToUpload = { navController.navigate(Screen.Upload.route) },
-                                onNavigateToHistory = { navController.navigate(Screen.Reports.route) },
+                                onNavigateToHistory = { navController.navigate(Screen.History.route) },
                                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
                                 onNavigateToReports = { navController.navigate(Screen.Reports.route) },
-                                onNavigateToLogin = {
-                                    navController.navigate(Screen.Login.route) {
-                                        popUpTo(Screen.Dashboard.route) { inclusive = true }
-                                    }
-                                }
+                                onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
+                                onNavigateToLogin = handleLogout
                             )
                         }
                         composable(Screen.Patients.route) {
@@ -145,6 +150,11 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate(Screen.PatientDetails.routeFor(patientId))
                                 },
                                 onNavigateToAddPatient = { navController.navigate(Screen.AddPatient.route) },
+                                onNavigateToHome = { navController.navigate(Screen.Dashboard.route) },
+                                onNavigateToUpload = { navController.navigate(Screen.Upload.route) },
+                                onNavigateToReports = { navController.navigate(Screen.Reports.route) },
+                                onNavigateToHistory = { navController.navigate(Screen.History.route) },
+                                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
@@ -183,7 +193,47 @@ class MainActivity : ComponentActivity() {
                             val uploadViewModel: UploadViewModel = hiltViewModel()
                             UploadScreen(
                                 viewModel = uploadViewModel,
-                                onNavigateToWorkspace = { navController.navigate(Screen.Analysis.route) },
+                                onNavigateToCbctPreview = { pId, sId ->
+                                    navController.navigate(Screen.CbctPreview.routeFor(pId, sId))
+                                },
+                                onNavigateToHome = { navController.navigate(Screen.Dashboard.route) },
+                                onNavigateToPatients = { navController.navigate(Screen.Patients.route) },
+                                onNavigateToAnalysis = { navController.navigate(Screen.Analysis.route) },
+                                onNavigateToReports = { navController.navigate(Screen.Reports.route) },
+                                onNavigateToHistory = { navController.navigate(Screen.History.route) },
+                                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
+                                onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
+                                onLogout = handleLogout,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable(
+                            route = Screen.CbctPreview.route,
+                            arguments = listOf(
+                                navArgument("patientId") { type = NavType.StringType },
+                                navArgument("studyId") { type = NavType.StringType }
+                            )
+                        ) { entry ->
+                            val pId = entry.arguments?.getString("patientId").orEmpty()
+                            val sId = entry.arguments?.getString("studyId").orEmpty()
+                            CbctPreviewScreen(
+                                patientId = pId,
+                                studyId = sId,
+                                patientName = "Selected Patient",
+                                fileName = "CBCT Volume",
+                                fileType = "CBCT Scan",
+                                onStartAnalysis = { patientId, studyId ->
+                                    navController.navigate(Screen.AnalysisWithArgs.routeFor(patientId, studyId))
+                                },
+                                onNavigateToHome = { navController.navigate(Screen.Dashboard.route) },
+                                onNavigateToPatients = { navController.navigate(Screen.Patients.route) },
+                                onNavigateToUpload = { navController.navigate(Screen.Upload.route) },
+                                onNavigateToAnalysis = { navController.navigate(Screen.Analysis.route) },
+                                onNavigateToReports = { navController.navigate(Screen.Reports.route) },
+                                onNavigateToHistory = { navController.navigate(Screen.History.route) },
+                                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
+                                onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
+                                onLogout = handleLogout,
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
@@ -192,6 +242,40 @@ class MainActivity : ComponentActivity() {
                             AnalysisScreen(
                                 viewModel = analysisViewModel,
                                 onNavigateToWorkspace = { navController.navigate(Screen.Reports.route) },
+                                onNavigateToHome = { navController.navigate(Screen.Dashboard.route) },
+                                onNavigateToPatients = { navController.navigate(Screen.Patients.route) },
+                                onNavigateToUpload = { navController.navigate(Screen.Upload.route) },
+                                onNavigateToReports = { navController.navigate(Screen.Reports.route) },
+                                onNavigateToHistory = { navController.navigate(Screen.History.route) },
+                                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
+                                onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
+                                onLogout = handleLogout,
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                        composable(
+                            route = Screen.AnalysisWithArgs.route,
+                            arguments = listOf(
+                                navArgument("patientId") { type = NavType.StringType },
+                                navArgument("studyId") { type = NavType.StringType }
+                            )
+                        ) { entry ->
+                            val analysisViewModel: AnalysisViewModel = hiltViewModel()
+                            val pId = entry.arguments?.getString("patientId").orEmpty()
+                            val sId = entry.arguments?.getString("studyId").orEmpty()
+                            AnalysisScreen(
+                                viewModel = analysisViewModel,
+                                patientId = pId,
+                                studyId = sId,
+                                onNavigateToWorkspace = { navController.navigate(Screen.Reports.route) },
+                                onNavigateToHome = { navController.navigate(Screen.Dashboard.route) },
+                                onNavigateToPatients = { navController.navigate(Screen.Patients.route) },
+                                onNavigateToUpload = { navController.navigate(Screen.Upload.route) },
+                                onNavigateToReports = { navController.navigate(Screen.Reports.route) },
+                                onNavigateToHistory = { navController.navigate(Screen.History.route) },
+                                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
+                                onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
+                                onLogout = handleLogout,
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
@@ -201,7 +285,12 @@ class MainActivity : ComponentActivity() {
                                 viewModel = reportViewModel,
                                 onOpenReport = { reportId ->
                                     navController.navigate(Screen.ReportDetails.routeFor(reportId))
-                                }
+                                },
+                                onNavigateToHome = { navController.navigate(Screen.Dashboard.route) },
+                                onNavigateToPatients = { navController.navigate(Screen.Patients.route) },
+                                onNavigateToUpload = { navController.navigate(Screen.Upload.route) },
+                                onNavigateToHistory = { navController.navigate(Screen.History.route) },
+                                onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
                             )
                         }
                         composable(
@@ -212,12 +301,30 @@ class MainActivity : ComponentActivity() {
                             val reportId = requireNotNull(entry.arguments?.getString("reportId"))
                             ReportDetailsScreen(reportId = reportId, viewModel = reportViewModel)
                         }
+                        composable(Screen.History.route) {
+                            val historyViewModel: com.canineai.android.presentation.history.viewmodel.HistoryViewModel = hiltViewModel()
+                            com.canineai.android.presentation.history.screen.HistoryScreen(
+                                viewModel = historyViewModel,
+                                onNavigateToReport = { reportId -> navController.navigate(Screen.ReportDetails.routeFor(reportId)) },
+                                onNavigateToHome = { navController.navigate(Screen.Dashboard.route) },
+                                onNavigateToPatients = { navController.navigate(Screen.Patients.route) },
+                                onNavigateToUpload = { navController.navigate(Screen.Upload.route) },
+                                onNavigateToReports = { navController.navigate(Screen.Reports.route) },
+                                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
                         composable(Screen.Settings.route) {
                             val settingsViewModel: SettingsViewModel = hiltViewModel()
                             SettingsScreen(
                                 viewModel = settingsViewModel,
                                 onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
                                 onNavigateToAbout = { navController.navigate(Screen.About.route) },
+                                onNavigateToHome = { navController.navigate(Screen.Dashboard.route) },
+                                onNavigateToPatients = { navController.navigate(Screen.Patients.route) },
+                                onNavigateToUpload = { navController.navigate(Screen.Upload.route) },
+                                onNavigateToReports = { navController.navigate(Screen.Reports.route) },
+                                onNavigateToHistory = { navController.navigate(Screen.History.route) },
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }

@@ -31,7 +31,9 @@ data class RegisterRequest(
     @SerializedName("password") val password: String,
     @SerializedName("fullName") val fullName: String,
     @SerializedName("phone") val phone: String?,
-    @SerializedName("username") val username: String
+    @SerializedName("username") val username: String,
+    @SerializedName("securityQuestion") val securityQuestion: String = "What is your primary clinical department?",
+    @SerializedName("securityAnswer") val securityAnswer: String = "Orthodontics"
 )
 
 data class LoginResponse(
@@ -82,22 +84,23 @@ data class ActivityDto(
 )
 
 data class PatientDto(
-    @SerializedName("id") val id: String?,
-    @SerializedName("hospitalPatientId") val hospitalPatientId: String?,
-    @SerializedName("fullName") val fullName: String,
-    @SerializedName("age") val age: Int,
-    @SerializedName("gender") val gender: String,
-    @SerializedName("dateOfBirth") val dob: String,
-    @SerializedName("phone") val phone: String,
-    @SerializedName("email") val email: String,
-    @SerializedName("status") val status: String?,
+    @SerializedName("id") val id: String? = null,
+    @SerializedName("hospitalPatientId") val hospitalPatientId: String? = null,
+    @SerializedName("fullName") val fullName: String?,
+    @SerializedName("age") val age: Int?,
+    @SerializedName("gender") val gender: String?,
+    @SerializedName("dob") val dob: String?,
+    @SerializedName("dateOfBirth") val dateOfBirth: String? = null,
+    @SerializedName("phone") val phone: String?,
+    @SerializedName("email") val email: String?,
+    @SerializedName("status") val status: String? = "ACTIVE",
     @SerializedName("orthodontist") val orthodontist: String?,
     @SerializedName("bloodGroup") val bloodGroup: String?,
     @SerializedName("medicalNotes") val medicalNotes: String?,
-    @SerializedName("registrationDate") val registrationDate: String?,
-    @SerializedName("studies") val studies: List<StudyDto>?,
-    @SerializedName("reports") val reports: List<ReportDto>?,
-    @SerializedName("hospital") val hospital: String? = null,
+    @SerializedName("registrationDate") val registrationDate: String? = null,
+    @SerializedName("studies") val studies: List<StudyDto>? = null,
+    @SerializedName("reports") val reports: List<ReportDto>? = null,
+    @SerializedName("hospital") val hospital: String? = "Metro Dental Diagnostics",
     @SerializedName("address") val address: String? = null
 )
 
@@ -130,7 +133,8 @@ data class UploadSessionDto(
     @SerializedName("uploadedFiles") val uploadedFiles: Int,
     @SerializedName("status") val status: String,
     @SerializedName("createdAt") val createdAt: String,
-    @SerializedName("expiresAt") val expiresAt: String?
+    @SerializedName("expiresAt") val expiresAt: String?,
+    @SerializedName("studyId") val studyId: String? = null
 )
 
 data class ReportDto(
@@ -165,7 +169,12 @@ data class ReportDto(
     @SerializedName("boundingBoxX") val boundingBoxX: Float? = null,
     @SerializedName("boundingBoxY") val boundingBoxY: Float? = null,
     @SerializedName("boundingBoxWidth") val boundingBoxWidth: Float? = null,
-    @SerializedName("boundingBoxHeight") val boundingBoxHeight: Float? = null
+    @SerializedName("boundingBoxHeight") val boundingBoxHeight: Float? = null,
+    @SerializedName("studyDisplayId") val studyDisplayId: String? = null,
+    @SerializedName("formattedApprovedAt") val formattedApprovedAt: String? = null,
+    @SerializedName("minConfidenceThreshold") val minConfidenceThreshold: Int? = null,
+    @SerializedName("confidenceInterpretation") val confidenceInterpretation: String? = null,
+    @SerializedName("clinicalSuggestions") val clinicalSuggestions: String? = null
 )
 
 data class AnalysisDto(
@@ -216,4 +225,18 @@ data class AiProgressResponseDto(
     @SerializedName("gpuUsagePercent") val gpuUsagePercent: Int?,
     @SerializedName("cpuUsagePercent") val cpuUsagePercent: Int?,
     @SerializedName("errorMessage") val errorMessage: String? = null
+)
+
+data class HistoryDto(
+    @SerializedName("id") val id: String?,
+    @SerializedName("studyId") val studyId: String?,
+    @SerializedName("patientId") val patientId: String?,
+    @SerializedName("patientName") val patientName: String?,
+    @SerializedName("patientDisplayId") val patientDisplayId: String?,
+    @SerializedName("studyDisplayId") val studyDisplayId: String?,
+    @SerializedName("prediction") val prediction: String?,
+    @SerializedName("confidence") val confidence: String?,
+    @SerializedName("status") val status: String?,
+    @SerializedName("createdBy") val createdBy: String?,
+    @SerializedName("completedAt") val completedAt: String?
 )

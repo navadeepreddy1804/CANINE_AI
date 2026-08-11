@@ -33,11 +33,18 @@ public class PatientStudyController {
     @Operation(summary = "Get studies for a patient", description = "Retrieves all CBCT studies uploaded for the specified patient.")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORTHODONTIST', 'CLINICIAN') or hasAuthority('patient:read')")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getPatientStudies(
-            @PathVariable("patientId") UUID patientId,
+            @PathVariable("patientId") String patientIdStr,
             Principal principal) {
         
-        // Enforce Patient Ownership Check
         String currentUser = principal != null ? principal.getName() : "System";
+        UUID patientId;
+        try {
+            patientId = UUID.fromString(patientIdStr);
+        } catch (IllegalArgumentException e) {
+            patientId = patientService.getPatientByHospitalId(patientIdStr, currentUser).getId();
+        }
+
+        // Enforce Patient Ownership Check
         patientService.getPatient(patientId, currentUser);
 
         List<Study> studies = studyRepository.findByPatientIdAndDeletedFalse(patientId);

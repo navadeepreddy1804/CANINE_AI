@@ -108,6 +108,18 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    public PatientResponseDto getPatientByHospitalId(String hospitalPatientId, String currentUser) {
+        Patient patient = patientRepository.findByHospitalPatientIdAndCreatedByAndDeletedFalse(hospitalPatientId, currentUser)
+                .or(() -> patientRepository.findByHospitalPatientIdAndDeletedFalse(hospitalPatientId))
+                .orElseThrow(() -> new BusinessException.ResourceNotFoundException("Patient EMR not found: " + hospitalPatientId));
+
+        if (currentUser != null && !currentUser.equals("System") && !patient.getCreatedBy().equals(currentUser)) {
+            throw new BusinessException.UnauthorizedException("Access Denied: You do not have ownership of this EMR patient record.");
+        }
+        return patientMapper.toDto(patient);
+    }
+
+    @Override
     @Transactional
     @org.springframework.cache.annotation.CacheEvict(value = "patients", key = "#id")
     public void deletePatient(UUID id, String currentUser) {

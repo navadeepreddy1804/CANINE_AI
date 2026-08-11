@@ -22,7 +22,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PatientViewModel @Inject constructor(
-    private val repository: CanineRepository
+    private val repository: CanineRepository,
+    private val sessionManager: com.canineai.android.data.local.SessionManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(PatientState())
@@ -32,6 +33,11 @@ class PatientViewModel @Inject constructor(
     val uiActions = _uiActions.receiveAsFlow()
 
     init {
+        val fullName = sessionManager.getFullName()
+        val email = sessionManager.getEmail()
+        val docName = if (!fullName.isNullOrBlank()) fullName else if (!email.isNullOrBlank()) email else "Dr. John Smith"
+        val formattedDoc = if (docName.startsWith("Dr.")) docName else "Dr. $docName"
+        _state.update { it.copy(inputOrthodontist = formattedDoc) }
         loadPatientsList()
     }
 
@@ -211,13 +217,25 @@ class PatientViewModel @Inject constructor(
         _state.update { it.copy(isFormSaving = true, apiError = null) }
         viewModelScope.launch {
             try {
+                val computedDob = if (_state.value.inputDob.isNotBlank()) {
+                    _state.value.inputDob
+                } else {
+                    val ageVal = _state.value.inputAge.toIntOrNull() ?: 30
+                    try {
+                        java.time.LocalDate.now().minusYears(ageVal.toLong()).toString()
+                    } catch (e: Exception) {
+                        "1990-01-01"
+                    }
+                }
+
                 val patientDto = PatientDto(
                     id = _state.value.selectedPatient?.id,
                     hospitalPatientId = null,
                     fullName = _state.value.inputFullName,
                     age = _state.value.inputAge.toIntOrNull() ?: 0,
-                    gender = _state.value.inputGender,
-                    dob = _state.value.inputDob,
+                    gender = if (_state.value.inputGender.isNotBlank()) _state.value.inputGender.trim().uppercase() else "FEMALE",
+                    dob = computedDob,
+                    dateOfBirth = computedDob,
                     phone = _state.value.inputPhone,
                     email = _state.value.inputEmail,
                     status = "ACTIVE",
@@ -229,8 +247,18 @@ class PatientViewModel @Inject constructor(
                     reports = null,
                     hospital = "Metro Dental Diagnostics"
                 )
-                repository.savePatient(patientDto)
-                _state.update { it.copy(isFormSaving = false, showSuccessDialog = true) }
+                val savedPatient = repository.savePatient(patientDto)
+                val newItem = PatientItem(
+                    id = savedPatient.hospitalPatientId ?: savedPatient.id ?: "0",
+                    fullName = savedPatient.fullName.orEmpty(),
+                    age = savedPatient.age ?: 0,
+                    gender = savedPatient.gender.orEmpty(),
+                    phone = savedPatient.phone.orEmpty(),
+                    email = savedPatient.email.orEmpty(),
+                    status = savedPatient.status ?: "Active",
+                    lastAnalysisDate = null
+                )
+                _state.update { it.copy(isFormSaving = false, showSuccessDialog = true, createdPatient = newItem) }
                 loadPatientsList()
             } catch (e: Exception) {
                 _state.update { it.copy(isFormSaving = false, apiError = NetworkErrorResolver.resolve(e)) }

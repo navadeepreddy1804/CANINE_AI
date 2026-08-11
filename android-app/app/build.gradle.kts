@@ -14,13 +14,17 @@ fun getLocalIp(): String {
         val interfaces = NetworkInterface.getNetworkInterfaces()
         while (interfaces.hasMoreElements()) {
             val iface = interfaces.nextElement()
+            val name = iface.name.lowercase()
+            val displayName = iface.displayName.lowercase()
             if (iface.isLoopback || !iface.isUp || iface.isVirtual) continue
+            if (name.contains("vbox") || name.contains("wsl") || name.contains("veth") || name.contains("virtual") || name.contains("hyper-v") || name.contains("bluetooth")) continue
+            if (displayName.contains("virtual") || displayName.contains("wsl") || displayName.contains("hyper-v") || displayName.contains("bluetooth")) continue
             val addresses = iface.inetAddresses
             while (addresses.hasMoreElements()) {
                 val addr = addresses.nextElement()
                 if (addr is Inet4Address && !addr.isLoopbackAddress) {
                     val ip = addr.hostAddress
-                    if (ip.startsWith("192.168.") || ip.startsWith("10.") || ip.startsWith("172.")) {
+                    if (ip.startsWith("10.168.") || ip.startsWith("192.168.") || ip.startsWith("10.") || ip.startsWith("172.")) {
                         return ip
                     }
                 }
@@ -29,7 +33,7 @@ fun getLocalIp(): String {
     } catch (e: Exception) {
         // ignore
     }
-    return "10.0.2.2"
+    return "10.37.23.120"
 }
 
 android {

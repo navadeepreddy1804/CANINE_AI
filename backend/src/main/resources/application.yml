@@ -27,6 +27,7 @@ spring:
 
 server:
   port: 8080
+  address: 0.0.0.0
   servlet:
     context-path: /api/v1
 
@@ -65,6 +66,7 @@ canineai:
     client-secret: ${GOOGLE_CLIENT_SECRET:}
   ai:
     mode: ${AI_MODE:real}
+    minimum-confidence: ${AI_MIN_CONFIDENCE:63}
     gateway:
       api-key: ${INTERNAL_GATEWAY_KEY:sk-canine-local-dev-key}
     models:

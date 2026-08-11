@@ -24,11 +24,26 @@ class TaskQueue:
         logger.info(f"Registered background AI task run job: {job_id} for study: {study_id}")
         return job_id
 
-    def update_job(self, job_id: str, status: str, progress: int, result: Optional[Dict[str, Any]] = None, error: Optional[str] = None):
+    def update_job(
+        self,
+        job_id: str,
+        status: str,
+        progress: int,
+        result: Optional[Dict[str, Any]] = None,
+        error: Optional[str] = None,
+        current_stage: Optional[str] = None,
+        currentStage: Optional[str] = None,
+        **kwargs
+    ):
         with self._lock:
             if job_id in self._jobs:
                 self._jobs[job_id]["status"] = status
                 self._jobs[job_id]["progressPercentage"] = progress
+                
+                stage = current_stage or currentStage or kwargs.get("stage")
+                if stage is not None:
+                    self._jobs[job_id]["currentStage"] = stage
+                    
                 if result is not None:
                     self._jobs[job_id]["result"] = result
                 if error is not None:

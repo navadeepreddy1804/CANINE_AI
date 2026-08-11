@@ -40,6 +40,7 @@
                                 <th class="ps-4">Patient</th>
                                 <th>Study ID</th>
                                 <th>Prediction</th>
+                                <th>Confidence</th>
                                 <th>Status</th>
                                 <th>Generated</th>
                                 <th class="text-end pe-4">Actions</th>
@@ -53,21 +54,23 @@
                                     <div class="small text-muted" th:text="${report.patientDisplayId != null ? report.patientDisplayId : ''}">PT-000</div>
                                 </td>
                                 
-                                <td class="font-monospace small" th:text="${report.studyId != null ? #strings.substring(report.studyId,0,8) + '...' : ''}"></td>
+                                <td class="font-monospace small" th:text="${report.studyDisplayId != null ? report.studyDisplayId : (report.studyId != null ? #strings.substring(report.studyId,0,8) + '...' : '')}">ST-20260808-0001</td>
                                 
                                 <td>
-                                    <!-- Attempt to parse JSON in Thymeleaf or fallback -->
-                                    <span class="fw-bold" th:text="${aiNode != null && aiNode.has('prediction') && aiNode.get('prediction').has('eruptionStatus') ? aiNode.get('prediction').get('eruptionStatus').asText() : (aiNode != null && aiNode.has('eruptionStatus') ? aiNode.get('eruptionStatus').asText() : 'Unknown')}">Prediction</span>
+                                    <span class="fw-bold" th:text="${aiNode != null && aiNode.has('prediction') && aiNode.get('prediction').has('eruptionStatus') ? aiNode.get('prediction').get('eruptionStatus').asText() : (aiNode != null && aiNode.has('eruptionStatus') ? aiNode.get('eruptionStatus').asText() : (report.prediction != null ? report.prediction : 'COMPLETED'))}">Prediction</span>
                                     <div class="small text-muted" th:text="${aiNode != null && aiNode.has('prediction') && aiNode.get('prediction').has('fdiNumber') ? 'FDI ' + aiNode.get('prediction').get('fdiNumber').asText() : ''}">FDI</div>
                                 </td>
 
                                 <td>
-                                    <span class="badge bg-success" th:text="${report.status}">Completed</span>
+                                    <span class="fw-bold text-dark" th:text="${aiNode != null && aiNode.has('prediction') && aiNode.get('prediction').has('confidence') ? aiNode.get('prediction').get('confidence').asText() + '%' : (aiNode != null && aiNode.has('confidence') ? aiNode.get('confidence').asText() + '%' : (report.confidence != null ? report.confidence : 'N/A'))}">N/A</span>
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-success" th:text="${report.status != null ? report.status : 'COMPLETED'}">Completed</span>
                                 </td>
                                 
                                 <td>
-                                    <div th:text="${report.approvedAt != null ? #temporals.format(report.approvedAt, 'dd MMM yyyy') : 'Unknown Date'}">08 Aug 2026</div>
-                                    <div class="small text-muted" th:text="${report.approvedAt != null ? #temporals.format(report.approvedAt, 'hh:mm a') : ''}">06:30 AM</div>
+                                    <div th:text="${report.formattedApprovedAt != null ? report.formattedApprovedAt : (report.approvedAt != null ? #strings.substring(report.approvedAt.toString(), 0, 19).replace('T', ' ') : 'Date unavailable')}">08 Aug 2026, 08:32 AM</div>
                                 </td>
                                 
                                 <td class="text-end pe-4 text-nowrap">

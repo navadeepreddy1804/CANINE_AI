@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -206,44 +207,93 @@ fun AddPatientScreen(
                     modifier = Modifier.fillMaxWidth().height(100.dp)
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                state.apiError?.let { err ->
+                    com.canineai.android.presentation.components.CanineStatusChip(
+                        text = "Unable to admit patient: $err",
+                        status = com.canineai.android.presentation.components.CanineStatus.ERROR,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                    )
+                }
 
-                // Action buttons
+                // Action buttons container
                 if (state.isFormSaving) {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        CanineCircularLoader()
+                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            CanineCircularLoader()
+                            Text("Admitting patient...", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                        }
                     }
                 } else {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        CanineButton(
-                            text = "Cancel",
-                            onClick = onNavigateBack,
-                            type = CanineButtonType.TEXT,
-                            modifier = Modifier.weight(1f)
-                        )
+                    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
                         CanineButton(
                             text = "Admit Patient",
                             onClick = { viewModel.onEvent(PatientEvent.SavePatientSubmitted) },
                             enabled = state.isFormValid,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        CanineButton(
+                            text = "Cancel",
+                            onClick = onNavigateBack,
+                            type = CanineButtonType.TEXT,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
             }
+            
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 
-    // Success dialog
+    // Rich Success Confirmation Dialog
     if (state.showSuccessDialog) {
-        CanineDialog(
-            title = "EMR Created Successfully",
-            message = "The patient record has been successfully admitted into the EMR database.",
-            confirmButtonText = "Done",
-            onConfirm = { viewModel.onEvent(PatientEvent.DismissSuccessDialog) },
-            onDismissRequest = {}
+        val created = state.createdPatient
+        val patientIdFormatted = created?.id?.let { id ->
+            if (id.startsWith("PT-")) id else try { String.format("PT-%05d", id.toInt()) } catch (e: Exception) { "PT-$id" }
+        } ?: "PT-00001"
+
+        AlertDialog(
+            onDismissRequest = { viewModel.onEvent(PatientEvent.DismissSuccessDialog) },
+            title = {
+                Text(
+                    text = "Patient Admitted Successfully",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("The EMR record has been created and synced with the backend database.", style = MaterialTheme.typography.bodySmall)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text("Patient Name: ${created?.fullName ?: state.inputFullName}", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                            Text("Patient ID: $patientIdFormatted", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.primary)
+                            Text("Demographics: ${created?.age ?: state.inputAge} YRS • ${created?.gender ?: state.inputGender}", style = MaterialTheme.typography.labelSmall)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    val id = created?.id ?: "1"
+                    viewModel.onEvent(PatientEvent.DismissSuccessDialog)
+                    onNavigateBack()
+                }) {
+                    Text("Done")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = {
+                    viewModel.onEvent(PatientEvent.DismissSuccessDialog)
+                    onNavigateBack()
+                }) {
+                    Text("View List")
+                }
+            }
         )
     }
 }

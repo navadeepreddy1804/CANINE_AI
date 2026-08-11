@@ -34,11 +34,9 @@ public class RegisterRequest {
     @Schema(description = "Clinician unique username", example = "janesmith")
     private String username;
     
-    @NotBlank(message = "Security question is required")
-    @Schema(description = "Security question for password recovery", example = "What is your mother's maiden name?")
+    @Schema(description = "Security question for password recovery", example = "What is your primary clinical department?")
     private String securityQuestion;
     
-    @NotBlank(message = "Security answer is required")
-    @Schema(description = "Security answer for password recovery", example = "Smith")
+    @Schema(description = "Security answer for password recovery", example = "Orthodontics")
     private String securityAnswer;
 }

@@ -38,6 +38,37 @@ class AnalysisViewModel @Inject constructor(
         loadInitialContext()
     }
 
+    fun setInitialStudyAndPatient(patientId: String, studyId: String) {
+        if (patientId.isBlank() && studyId.isBlank()) return
+        viewModelScope.launch {
+            try {
+                var name = _state.value.patientName
+                if (patientId.isNotBlank()) {
+                    val pDetails = repository.getPatientDetails(patientId)
+                    name = pDetails.fullName
+                }
+                _state.update {
+                    it.copy(
+                        patientId = patientId.ifBlank { it.patientId },
+                        patientName = name.ifBlank { it.patientName },
+                        studyId = studyId.ifBlank { it.studyId },
+                        apiError = null
+                    )
+                }
+
+                val targetStudy = studyId.ifBlank { _state.value.studyId }
+                if (targetStudy.isNotBlank()) {
+                    val existingReport = repository.getReportByStudyId(targetStudy)
+                    if (existingReport != null) {
+                        parsePersistedReport(existingReport)
+                    }
+                }
+            } catch (e: Exception) {
+                // Best effort setup
+            }
+        }
+    }
+
     fun loadInitialContext() {
         viewModelScope.launch {
             try {
@@ -265,11 +296,20 @@ class AnalysisViewModel @Inject constructor(
                 val root = JSONObject(resultJson)
                 val pred = if (root.has("prediction")) root.getJSONObject("prediction") else root
                 
-                if (pred.has("canineToothName")) toothName = pred.optString("canineToothName", toothName)
-                if (pred.has("canineFdi")) fdi = pred.optString("canineFdi", fdi)
+                if (pred.has("toothName")) toothName = pred.optString("toothName", toothName)
+                else if (pred.has("canineToothName")) toothName = pred.optString("canineToothName", toothName)
+                
+                if (pred.has("fdiNumber")) fdi = pred.optString("fdiNumber", fdi)
+                else if (pred.has("canineFdi")) fdi = pred.optString("canineFdi", fdi)
+                
                 if (pred.has("sectorLocation")) sector = pred.optString("sectorLocation", sector)
-                if (pred.has("canineVolumeMm3")) volumeMm3 = pred.optDouble("canineVolumeMm3", volumeMm3.toDouble()).toFloat()
-                if (pred.has("angle")) angle = pred.optDouble("angle", angle.toDouble()).toFloat()
+                
+                if (pred.has("volume")) volumeMm3 = pred.optDouble("volume", volumeMm3.toDouble()).toFloat()
+                else if (pred.has("canineVolumeMm3")) volumeMm3 = pred.optDouble("canineVolumeMm3", volumeMm3.toDouble()).toFloat()
+                
+                if (pred.has("angulation")) angle = pred.optDouble("angulation", angle.toDouble()).toFloat()
+                else if (pred.has("canineAngulation")) angle = pred.optDouble("canineAngulation", angle.toDouble()).toFloat()
+                
                 if (pred.has("toothCount")) totalTeeth = pred.optInt("toothCount", totalTeeth)
                 if (pred.has("maxillaryTeethCount")) maxTeeth = pred.optInt("maxillaryTeethCount", maxTeeth)
                 if (pred.has("mandibularTeethCount")) mandTeeth = pred.optInt("mandibularTeethCount", mandTeeth)
@@ -279,7 +319,13 @@ class AnalysisViewModel @Inject constructor(
                     centroid = centObj.toString()
                 }
 
-                if (pred.has("prediction")) diagnosis = pred.optString("prediction", diagnosis).replace("_", " ")
+                if (pred.has("eruptionStatus")) diagnosis = pred.optString("eruptionStatus", diagnosis).replace("_", " ")
+                else if (pred.has("prediction")) diagnosis = pred.optString("prediction", diagnosis).replace("_", " ")
+                
+                if (pred.has("confidence")) {
+                    val cVal = pred.optDouble("confidence", (confidence * 100).toDouble())
+                    confidence = if (cVal > 1.0) (cVal / 100.0).toFloat() else cVal.toFloat()
+                }
                 if (pred.has("eruptionDirection")) eruptionDir = pred.optString("eruptionDirection", eruptionDir)
                 if (pred.has("rootResorptionRisk")) resorptionRisk = pred.optString("rootResorptionRisk", resorptionRisk)
                 if (pred.has("difficulty")) difficulty = pred.optString("difficulty", difficulty)

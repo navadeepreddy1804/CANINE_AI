@@ -45,11 +45,14 @@ interface CanineApiService {
     @PUT("patients/{id}")
     suspend fun updatePatient(@Path("id") id: String, @Body patient: PatientDto): ApiResponse<PatientDto>
 
-    @POST("patients/{id}/delete")
+    @DELETE("patients/{id}")
     suspend fun deletePatient(@Path("id") id: String): ApiResponse<Unit>
 
     @GET("patients/{patientId}/studies")
     suspend fun getPatientStudies(@Path("patientId") patientId: String): ApiResponse<List<StudyDto>>
+
+    @GET("history")
+    suspend fun getHistory(): ApiResponse<List<HistoryDto>>
 
     @POST("uploads")
     suspend fun initializeSession(

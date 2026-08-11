@@ -20,8 +20,9 @@ class CanineRepository @Inject constructor(
     private val cachedReportDetails = mutableMapOf<String, ReportDto>()
 
     private fun <T> handleResponse(response: ApiResponse<T>): T {
-        if (response.success && response.data != null) {
-            return response.data
+        if (response.success) {
+            @Suppress("UNCHECKED_CAST")
+            return response.data as T
         } else {
             throw Exception(response.message ?: "Unknown API Error")
         }
@@ -135,12 +136,12 @@ class CanineRepository @Inject constructor(
         val pagedResponse = handleResponse(apiService.getPatients(search, gender, status, page, size))
         return pagedResponse.content.map { dto ->
             PatientItem(
-                id = dto.id ?: "",
-                fullName = dto.fullName,
-                age = dto.age,
-                gender = dto.gender,
-                phone = dto.phone,
-                email = dto.email,
+                id = dto.id ?: dto.hospitalPatientId ?: "",
+                fullName = dto.fullName.orEmpty(),
+                age = dto.age ?: 0,
+                gender = dto.gender.orEmpty(),
+                phone = dto.phone.orEmpty(),
+                email = dto.email.orEmpty(),
                 status = dto.status ?: "Active",
                 lastAnalysisDate = dto.registrationDate
             )
@@ -150,21 +151,21 @@ class CanineRepository @Inject constructor(
     suspend fun getPatientDetails(id: String): PatientDetails {
         val dto = handleResponse(apiService.getPatientDetails(id))
         return PatientDetails(
-            id = dto.id ?: "",
-            fullName = dto.fullName,
-            age = dto.age,
-            gender = dto.gender,
-            dob = dto.dob,
+            id = dto.hospitalPatientId ?: dto.id ?: "",
+            fullName = dto.fullName.orEmpty(),
+            age = dto.age ?: 0,
+            gender = dto.gender.orEmpty(),
+            dob = dto.dateOfBirth ?: dto.dob.orEmpty(),
             bloodGroup = dto.bloodGroup ?: "O+",
-            phone = dto.phone,
-            email = dto.email,
+            phone = dto.phone.orEmpty(),
+            email = dto.email.orEmpty(),
             address = dto.address ?: "",
             emergencyContact = "Unavailable", // Identified as missing backend capability
             medicalNotes = dto.medicalNotes ?: "",
             orthodontist = dto.orthodontist ?: "",
             hospital = dto.hospital ?: "",
             registrationDate = dto.registrationDate ?: "",
-            status = dto.status ?: "Active"
+            status = dto.status ?: "ACTIVE"
         )
     }
 
@@ -244,12 +245,24 @@ class CanineRepository @Inject constructor(
         return handleResponse(apiService.uploadZip(patientId, fileBytes))
     }
 
+    suspend fun getSessionStatus(sessionId: String): UploadSessionDto {
+        return handleResponse(apiService.getSessionStatus(sessionId))
+    }
+
     suspend fun getAnalysis(id: String): AnalysisDto {
         return handleResponse(apiService.getAnalysis(id))
     }
 
     suspend fun getReports(): List<ReportDto> {
         return handleResponse(apiService.getReports()).also { cachedReports = it }
+    }
+
+    suspend fun getHistory(): List<HistoryDto> {
+        return try {
+            handleResponse(apiService.getHistory())
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     suspend fun getReport(reportId: String): ReportDto {

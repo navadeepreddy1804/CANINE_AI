@@ -26,17 +26,30 @@ import java.util.UUID;
 public class UploadController {
 
     private final UploadService uploadService;
+    private final com.canineai.backend.service.PatientService patientService;
+
+    private UUID resolvePatientId(String patientIdStr, String username) {
+        if (patientIdStr == null || patientIdStr.isBlank()) {
+            throw new IllegalArgumentException("patientId parameter is required");
+        }
+        try {
+            return UUID.fromString(patientIdStr);
+        } catch (IllegalArgumentException e) {
+            return patientService.getPatientByHospitalId(patientIdStr, username).getId();
+        }
+    }
 
     @PostMapping
     @Operation(summary = "Initialize chunked upload session", description = "Verifies patient EMR and allocates a new upload session.")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORTHODONTIST') or hasAuthority('upload:create')")
     public ResponseEntity<ApiResponse<UploadSessionResponse>> initializeSession(
-            @RequestParam("patientId") UUID patientId,
+            @RequestParam("patientId") String patientIdStr,
             @RequestParam("totalSize") long totalSize,
             @RequestParam("totalFiles") int totalFiles,
             Principal principal) {
         
         String username = principal != null ? principal.getName() : "System";
+        UUID patientId = resolvePatientId(patientIdStr, username);
         UploadSessionResponse response = uploadService.initializeSession(patientId, totalSize, totalFiles, username);
         return ResponseEntity.ok(ApiResponse.success(response, "Upload session initialized successfully"));
     }
@@ -62,11 +75,12 @@ public class UploadController {
     @Operation(summary = "Stream upload ZIP DICOM package on-the-fly", description = "Streams and unpacks ZIP entries sequentially directly to disk storage.")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORTHODONTIST') or hasAuthority('upload:write')")
     public ResponseEntity<ApiResponse<UploadSessionResponse>> uploadZip(
-            @RequestParam("patientId") UUID patientId,
+            @RequestParam("patientId") String patientIdStr,
             HttpServletRequest request,
             Principal principal) {
         
         String username = principal != null ? principal.getName() : "System";
+        UUID patientId = resolvePatientId(patientIdStr, username);
         log.info("Initializing streaming ZIP unpack session for patient: {}", patientId);
 
         // Initialize session with mock sizing parameters, which will be updated on ZIP parsing completion

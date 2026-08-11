@@ -35,6 +35,7 @@ class WorkflowValidationTest {
     private val repository: CanineRepository = mock()
     private val context: android.content.Context = mock()
     private val contentResolver: android.content.ContentResolver = mock()
+    private val sessionManager: com.canineai.android.data.local.SessionManager = mock()
     private val uri: android.net.Uri = mock()
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var uploadViewModel: UploadViewModel
@@ -44,7 +45,7 @@ class WorkflowValidationTest {
         Dispatchers.setMain(dispatcher)
         whenever(context.contentResolver).thenReturn(contentResolver)
         whenever(contentResolver.openInputStream(uri)).thenReturn(java.io.ByteArrayInputStream("dummy zip content".toByteArray()))
-        loginViewModel = LoginViewModel(repository)
+        loginViewModel = LoginViewModel(repository, sessionManager)
         uploadViewModel = UploadViewModel(repository, context)
     }
 
@@ -84,7 +85,22 @@ class WorkflowValidationTest {
                 uploadedFiles = 1,
                 status = "COMPLETED",
                 createdAt = "2026-08-06",
-                expiresAt = null
+                expiresAt = null,
+                studyId = "study-100"
+            ))
+
+        whenever(repository.getSessionStatus(org.mockito.kotlin.any()))
+            .thenReturn(com.canineai.android.data.network.UploadSessionDto(
+                id = "session-100",
+                patientId = "pt-1",
+                totalSize = 1000L,
+                totalFiles = 1,
+                uploadedSize = 1000L,
+                uploadedFiles = 1,
+                status = "COMPLETED",
+                createdAt = "2026-08-06",
+                expiresAt = null,
+                studyId = "study-100"
             ))
 
         loginViewModel.onEvent(LoginEvent.EmailChanged("doctor@example.com"))

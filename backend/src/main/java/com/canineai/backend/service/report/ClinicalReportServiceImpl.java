@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -52,6 +53,14 @@ public class ClinicalReportServiceImpl implements ClinicalReportService {
     }
 
     private ReportResponse mapToResponse(ClinicalReport report) {
+        LocalDateTime timestamp = report.getApprovedAt() != null ? report.getApprovedAt() : report.getCreatedAt();
+        String formattedTime = "Date unavailable";
+        if (timestamp != null) {
+            try {
+                formattedTime = timestamp.format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a"));
+            } catch (Exception ignored) {}
+        }
+
         ReportResponse.ReportResponseBuilder builder = ReportResponse.builder()
                 .id(report.getId())
                 .studyId(report.getStudyId())
@@ -64,11 +73,14 @@ public class ClinicalReportServiceImpl implements ClinicalReportService {
                 .generationLatencyMs(report.getGenerationLatencyMs())
                 .doctorComments(report.getDoctorComments())
                 .approvedBy(report.getApprovedBy())
-                .approvedAt(report.getApprovedAt());
+                .approvedAt(timestamp)
+                .formattedApprovedAt(formattedTime)
+                .minConfidenceThreshold(63);
 
         try {
             studyRepository.findById(report.getStudyId()).ifPresent(study -> {
                 builder.studyDate(study.getStudyDate() != null ? study.getStudyDate().toString() : null);
+                builder.studyDisplayId(study.getStudyDisplayId());
                 if (study.getPatient() != null) {
                     builder.patientId(study.getPatient().getId());
                     builder.patientName(study.getPatient().getFullName());

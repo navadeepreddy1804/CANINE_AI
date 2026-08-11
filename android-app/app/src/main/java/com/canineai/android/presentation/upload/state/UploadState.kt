@@ -12,6 +12,9 @@ data class UploadState(
     // Selected patient details EMR link
     val patientId: String = "",
     val patientName: String = "",
+    val patientsList: List<com.canineai.android.presentation.patients.state.PatientItem> = emptyList(),
+    val selectedPatientItem: com.canineai.android.presentation.patients.state.PatientItem? = null,
+    val isLoadingPatients: Boolean = false,
     
     // DICOM Validation metadata parsed results
     val dicomMetadata: DicomMetadata? = null,

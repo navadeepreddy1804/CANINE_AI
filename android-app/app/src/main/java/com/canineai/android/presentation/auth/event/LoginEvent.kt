@@ -8,5 +8,6 @@ sealed class LoginEvent {
     object SubmitLogin : LoginEvent()
     data class SubmitGoogleLogin(val idToken: String) : LoginEvent()
     object BiometricAuthRequested : LoginEvent()
+    data class ServerUrlChanged(val serverUrl: String) : LoginEvent()
     object DismissError : LoginEvent()
 }

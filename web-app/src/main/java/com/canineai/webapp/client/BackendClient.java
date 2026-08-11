@@ -821,6 +821,30 @@ public class BackendClient {
         }
     }
 
+    public List<Map<String, Object>> getHistoryLogs(String accessToken) {
+        String url = baseUrl + "/history";
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<ApiResponse<List<Map<String, Object>>>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    new ParameterizedTypeReference<ApiResponse<List<Map<String, Object>>>>() {}
+            );
+
+            if (response.getBody() != null && response.getBody().isSuccess()) {
+                return response.getBody().getData();
+            }
+            return new ArrayList<>();
+        } catch (Exception e) {
+            log.error("Failed to fetch history logs from backend: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
     public UserDto updateProfile(UserDto request, String accessToken) {
         String url = baseUrl + "/auth/profile";
         log.info("Sending update profile request to backend: {}", url);

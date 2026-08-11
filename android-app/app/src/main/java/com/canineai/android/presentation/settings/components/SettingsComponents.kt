@@ -32,7 +32,7 @@ fun ThemeSettings(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text("Application Preferences", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -51,15 +51,6 @@ fun ThemeSettings(
             Text("Push Notifications Alerts", style = MaterialTheme.typography.bodyMedium)
             Switch(checked = state.isNotificationsEnabled, onCheckedChange = onNotificationsToggled)
         }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text("Default Locale Language", style = MaterialTheme.typography.bodyMedium)
-            Text(state.language, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
-        }
     }
 }
 
@@ -74,18 +65,34 @@ fun AISettings(
             .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.large)
             .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.large)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text("Clinical AI Preferences", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("AI Auto-localization Mode", style = MaterialTheme.typography.bodyMedium)
-            Text("Maxillary Segment (Active)", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+            Text(
+                text = "AI Localization Mode",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f),
+                shape = MaterialTheme.shapes.small
+            ) {
+                Text(
+                    text = "Maxillary Segment",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
         }
 
         Row(
@@ -93,41 +100,76 @@ fun AISettings(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Image Quality Checks", style = MaterialTheme.typography.bodyMedium)
-            Text("Standard Validation", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+            Text(
+                text = "Image Quality Checks",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f),
+                shape = MaterialTheme.shapes.small
+            ) {
+                Text(
+                    text = "Standard Validation",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
+            }
         }
     }
 }
 
 @Composable
-fun StorageSettings(
-    state: SettingsState,
-    onCleanClicked: () -> Unit,
+fun ClinicalWorkspaceSummary(
+    activePatients: Int = 0,
+    completedAnalyses: Int = 0,
+    reportsGenerated: Int = 0,
     modifier: Modifier = Modifier
 ) {
-    val totalUsed = listOfNotNull(state.studiesSizeGb, state.reportsSizeGb, state.logsSizeGb).takeIf { it.size == 3 }?.sum()
-    val usedFraction = if (totalUsed != null && state.maxStorageGb != null && state.maxStorageGb > 0f) totalUsed / state.maxStorageGb else null
-
-    CanineCard(modifier = modifier.fillMaxWidth()) {
-        Text("Local Storage Status", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-        Spacer(modifier = Modifier.height(12.dp))
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.large)
+            .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.large)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text("Clinical Workspace Metrics", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(totalUsed?.let { "${it.toInt()} GB used" } ?: "Usage unavailable", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
-            Text(state.maxStorageGb?.let { "Limit: ${it.toInt()} GB" } ?: "No storage API", style = MaterialTheme.typography.bodyMedium)
+            MetricTile(label = "Active Patients", value = "$activePatients", modifier = Modifier.weight(1f))
+            MetricTile(label = "Analyses Run", value = "$completedAnalyses", modifier = Modifier.weight(1f))
+            MetricTile(label = "Reports Created", value = "$reportsGenerated", modifier = Modifier.weight(1f))
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        LinearProgressIndicator(
-            progress = { usedFraction ?: 0f },
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-        )
+    }
+}
 
-        Spacer(modifier = Modifier.height(16.dp))
-        if (totalUsed != null) CanineButton(text = "Clean Temporary Logs", onClick = onCleanClicked, type = CanineButtonType.OUTLINED, modifier = Modifier.fillMaxWidth())
+@Composable
+private fun MetricTile(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.padding(horizontal = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
     }
 }

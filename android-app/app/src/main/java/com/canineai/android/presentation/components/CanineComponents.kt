@@ -410,10 +410,10 @@ fun CanineEmptyState(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(24.dp)
+            .padding(vertical = 16.dp)
             .background(MaterialTheme.colorScheme.surface, shape = MaterialTheme.shapes.large)
             .border(1.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.large)
-            .padding(32.dp),
+            .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -466,7 +466,7 @@ fun CanineLoadingState(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(32.dp),
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -493,10 +493,10 @@ fun CanineErrorState(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(24.dp)
+            .padding(vertical = 16.dp)
             .background(ColorError.copy(alpha = 0.05f), shape = MaterialTheme.shapes.large)
             .border(1.dp, ColorError.copy(alpha = 0.2f), MaterialTheme.shapes.large)
-            .padding(32.dp),
+            .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(

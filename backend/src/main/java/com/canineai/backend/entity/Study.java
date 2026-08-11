@@ -66,4 +66,11 @@ public class Study extends BaseAuditableEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StudyStatus status;
+
+    public String getStudyDisplayId() {
+        if (id == null) return "ST-00000000-0000";
+        String dateStr = (studyDate != null ? studyDate : LocalDate.now()).toString().replace("-", "");
+        String hex = id.toString().replace("-", "").substring(0, 4).toUpperCase();
+        return "ST-" + dateStr + "-" + hex;
+    }
 }

@@ -169,51 +169,58 @@ class InferencePipeline:
         ]
         
         for p, stage in progress_steps:
-            task_queue.update_job(job_id, "running", p, result=None, current_stage=stage)
+            task_queue.update_job(job_id, "running", p, current_stage=stage)
             await asyncio.sleep(0.5) # Fast simulation
             
-        task_queue.update_job(job_id, "running", 95, result=None, current_stage="Report")
+        task_queue.update_job(job_id, "running", 95, current_stage="Report")
         await asyncio.sleep(0.5)
             
-        # Deterministic seed based on study_id + filename
+        # Deterministic seed based on study_id + filename + session_id
         seed_hash = hashlib.sha256()
         try:
             resolved_path = InferencePipeline.resolve_study_volume_dir(study_id, session_id, storage_path)
+            file_identifier = resolved_path.name if (resolved_path and resolved_path.exists()) else (storage_path or "default_volume")
+            combined_seed = f"{study_id}_{session_id or ''}_{file_identifier}"
+            seed_hash.update(combined_seed.encode('utf-8'))
+            
             if resolved_path and resolved_path.exists():
-                seed_hash.update(str(resolved_path.name).encode('utf-8'))
-                
                 # Extract preview slices from uploaded file to show in UI
                 try:
                     study_root_dir = resolved_path.parent if (resolved_path.is_file() or (resolved_path.is_dir() and resolved_path.name in ("original", "dicom"))) else resolved_path
                     previews_dir = study_root_dir / "previews"
                     axial_dir = previews_dir / "axial"
                     
-                    if not axial_dir.exists() or len(list(axial_dir.glob("*.png"))) == 0:
-                        axial_dir.mkdir(parents=True, exist_ok=True)
-                        logger.info(f"[FastAPI] Extracting real axial slices from {resolved_path} for demo...")
-                        _, volume = load_uploaded_volume(resolved_path)
-                        z_len, y_len, x_len = volume.shape
-                        preview_indices = CanineExtractor._compute_preview_indices(z_len, 12)
-                        
-                        for idx, slice_z in enumerate(preview_indices):
-                            raw_slice = volume[slice_z, :, :]
+                    previews_dir.mkdir(parents=True, exist_ok=True)
+                    axial_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    logger.info(f"[FastAPI] Extracting real axial slices from {resolved_path} for demo...")
+                    _, volume = load_uploaded_volume(resolved_path)
+                    z_len, y_len, x_len = volume.shape
+                    preview_indices = CanineExtractor._compute_preview_indices(z_len, 12)
+                    
+                    for idx, slice_z in enumerate(preview_indices):
+                        raw_slice = volume[slice_z, :, :]
+                        p1, p99 = np.percentile(raw_slice, (1, 99))
+                        if p99 > p1:
+                            clipped = np.clip(raw_slice, p1, p99)
+                            norm_slice = ((clipped - p1) / (p99 - p1) * 255.0).astype(np.uint8)
+                        else:
                             min_v, max_v = float(np.min(raw_slice)), float(np.max(raw_slice))
-                            norm_slice = ((raw_slice - min_v) / (max_v - min_v + 1e-6) * 255.0).astype(np.uint8)
-                            color_slice = cv2.cvtColor(norm_slice, cv2.COLOR_GRAY2BGR)
-                            
-                            # Add a simple crosshair marker for demo visualization
-                            cx, cy = int(x_len/2), int(y_len/2)
-                            cv2.drawMarker(color_slice, (cx - 20, cy - 20), (0, 60, 255), markerType=cv2.MARKER_CROSS, markerSize=20, thickness=2)
-                            cv2.circle(color_slice, (cx - 20, cy - 20), 15, (0, 255, 255), 1)
-                            
-                            out_png = axial_dir / f"axial_{idx}.png"
-                            cv2.imwrite(str(out_png), color_slice)
+                            if max_v > min_v:
+                                norm_slice = ((raw_slice - min_v) / (max_v - min_v + 1e-6) * 255.0).astype(np.uint8)
+                            else:
+                                norm_slice = np.zeros_like(raw_slice, dtype=np.uint8)
+                                
+                        color_slice = cv2.cvtColor(norm_slice, cv2.COLOR_GRAY2BGR)
+                        
+                        out_png1 = axial_dir / f"axial_{idx}.png"
+                        out_png2 = previews_dir / f"axial_{idx}.png"
+                        cv2.imwrite(str(out_png1), color_slice)
+                        cv2.imwrite(str(out_png2), color_slice)
                 except Exception as ex:
                     logger.warning(f"[FastAPI] Failed to extract real slices for demo: {ex}")
-
-            seed_hash.update(study_id.encode('utf-8'))
         except Exception as e:
-            seed_hash.update(study_id.encode('utf-8'))
+            seed_hash.update(f"{study_id}_{session_id or ''}".encode('utf-8'))
             
         seed_int = int(seed_hash.hexdigest()[:8], 16)
         rng = random.Random(seed_int)
@@ -224,7 +231,10 @@ class InferencePipeline:
         fdi = fdi_choices[rng.randint(0, 1)]
         tooth_name = "Maxillary Right Canine" if fdi == 13 else "Maxillary Left Canine"
         
-        confidence = rng.randint(63, 80)
+        if rng.random() < 0.15:
+            confidence = rng.randint(81, 95)
+        else:
+            confidence = rng.randint(63, 80)
         
         if case_idx == 0:
             status = "IMPACTED"

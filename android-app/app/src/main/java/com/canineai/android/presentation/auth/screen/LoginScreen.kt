@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -289,18 +290,65 @@ fun LoginScreen(
                     }
                 }
             } else {
+                var showServerSettingsDialog by remember { mutableStateOf(false) }
+                var serverUrlInput by remember { mutableStateOf(com.canineai.android.data.network.ApiConfig.resolveBaseUrl()) }
+
+                if (showServerSettingsDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showServerSettingsDialog = false },
+                        title = { Text("Backend Server Configuration") },
+                        text = {
+                            Column {
+                                Text("Enter the Spring Boot backend server URL for local development or production network access:", style = MaterialTheme.typography.bodySmall)
+                                Spacer(modifier = Modifier.height(12.dp))
+                                OutlinedTextField(
+                                    value = serverUrlInput,
+                                    onValueChange = { serverUrlInput = it },
+                                    label = { Text("API Base URL") },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        },
+                        confirmButton = {
+                            Button(onClick = {
+                                viewModel.onEvent(LoginEvent.ServerUrlChanged(serverUrlInput))
+                                showServerSettingsDialog = false
+                            }) {
+                                Text("Save & Apply")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showServerSettingsDialog = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
+                }
+
                 // Login input container
                 CanineCard(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "Sign In",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "Access dental CBCT analysis tools",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                text = "Sign In",
+                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Access dental CBCT analysis tools",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        }
+                        IconButton(onClick = { showServerSettingsDialog = true }) {
+                            Icon(Icons.Default.Settings, contentDescription = "Server Settings", tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(24.dp))
 

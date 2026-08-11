@@ -4,9 +4,8 @@ import com.canineai.backend.entity.Gender;
 import com.canineai.backend.entity.PatientStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import java.time.LocalDate;
@@ -20,11 +19,11 @@ public class PatientRequestDto {
     @NotBlank(message = "Full Name is required")
     private String fullName;
 
-    @NotNull(message = "Date of Birth is required")
-    @PastOrPresent(message = "Date of Birth cannot be in the future")
+    @JsonAlias({"dob", "dateOfBirth"})
     private LocalDate dateOfBirth;
 
-    @NotNull(message = "Gender is required")
+    private Integer age;
+
     private Gender gender;
 
     @NotBlank(message = "Phone number is required")
@@ -48,6 +47,23 @@ public class PatientRequestDto {
     @NotBlank(message = "Hospital name is required")
     private String hospital;
 
-    @NotNull(message = "Patient status is required")
     private PatientStatus status;
+
+    public LocalDate getDateOfBirth() {
+        if (dateOfBirth != null) {
+            return dateOfBirth;
+        }
+        if (age != null && age > 0) {
+            return LocalDate.now().minusYears(age);
+        }
+        return LocalDate.now().minusYears(30);
+    }
+
+    public PatientStatus getStatus() {
+        return status != null ? status : PatientStatus.ACTIVE;
+    }
+
+    public Gender getGender() {
+        return gender != null ? gender : Gender.FEMALE;
+    }
 }

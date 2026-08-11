@@ -21,6 +21,10 @@ public interface PatientRepository extends JpaRepository<Patient, UUID>, JpaSpec
     @Query("SELECT MAX(CAST(SUBSTRING(p.hospitalPatientId, 4) AS int)) FROM Patient p WHERE p.hospitalPatientId LIKE 'PT-%'")
     Integer findMaxHospitalPatientIdSequence();
 
+    Optional<Patient> findByHospitalPatientIdAndDeletedFalse(String hospitalPatientId);
+
+    Optional<Patient> findByHospitalPatientIdAndCreatedByAndDeletedFalse(String hospitalPatientId, String createdBy);
+
     /** Checks within a clinician's own patients only — mirrors the composite unique constraint. */
     boolean existsByHospitalPatientIdAndCreatedByAndDeletedFalse(String hospitalPatientId, String createdBy);
 

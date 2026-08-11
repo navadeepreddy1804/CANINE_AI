@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Person
@@ -25,9 +25,11 @@ import com.canineai.android.presentation.components.CanineIconButton
 import com.canineai.android.presentation.components.CanineCircularLoader
 import com.canineai.android.presentation.components.CanineEmptyState
 import com.canineai.android.presentation.components.CanineLoadingState
+import com.canineai.android.presentation.components.CanineDrawerLayout
 import com.canineai.android.presentation.patients.event.PatientEvent
 import com.canineai.android.presentation.patients.state.PatientItem
 import com.canineai.android.presentation.patients.viewmodel.PatientViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,10 +37,17 @@ fun PatientListScreen(
     viewModel: PatientViewModel,
     onNavigateToDetails: (String) -> Unit,
     onNavigateToAddPatient: () -> Unit,
+    onNavigateToHome: () -> Unit = {},
+    onNavigateToUpload: () -> Unit = {},
+    onNavigateToReports: () -> Unit = {},
+    onNavigateToHistory: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
     var showFilterSheet by remember { mutableStateOf(false) }
 
     val onPatientClick = remember(viewModel, onNavigateToDetails) {
@@ -52,105 +61,133 @@ fun PatientListScreen(
         { viewModel.onEvent(PatientEvent.LoadNextPage) }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Patient Registry") },
-                navigationIcon = {
-                    CanineIconButton(icon = Icons.Default.ArrowBack, onClick = onNavigateBack, contentDescription = "Back")
-                },
-                actions = {
-                    CanineIconButton(icon = Icons.Default.MoreVert, onClick = { showFilterSheet = true }, contentDescription = "Filter Options")
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAddPatient,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Patient")
-            }
-        },
-        modifier = modifier
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp)
-        ) {
-            // Search Bar
-            CanineTextField(
-                value = state.searchQuery,
-                onValueChange = { viewModel.onEvent(PatientEvent.SearchQueryChanged(it)) },
-                label = "Search Patients",
-                placeholder = "Search by ID, name, phone...",
-                leadingIcon = Icons.Default.Search,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Error display
-            state.apiError?.let { err ->
-                CanineStatusChip(
-                    text = err,
-                    status = CanineStatus.ERROR,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                        .clickable { viewModel.onEvent(PatientEvent.DismissError) }
-                )
-            }
-
-            if (state.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CanineLoadingState(message = "Fetching patient registry...")
-                }
-            } else if (state.filteredPatientsList.isEmpty()) {
-                CanineEmptyState(
-                    title = "No Patients Registered",
-                    message = if (state.searchQuery.isNotEmpty()) "No patients found matching your search criteria." else "Add patient profiles to start CBCT diagnostics.",
-                    icon = Icons.Default.Person,
-                    actionText = if (state.searchQuery.isEmpty()) "Admit Patient" else null,
-                    onActionClick = if (state.searchQuery.isEmpty()) { { onNavigateToAddPatient() } } else null
-                )
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    itemsIndexed(
-                        items = state.filteredPatientsList,
-                        key = { _, patient -> patient.id }
-                    ) { index, patient ->
-                        PatientRowCard(
-                            patient = patient,
-                            onClick = { onPatientClick(patient.id) }
+    CanineDrawerLayout(
+        drawerState = drawerState,
+        currentRoute = "patients",
+        onNavigateToHome = onNavigateToHome,
+        onNavigateToPatients = { /* Already on Patients */ },
+        onNavigateToUpload = onNavigateToUpload,
+        onNavigateToAnalysis = { onNavigateToUpload() },
+        onNavigateToReports = onNavigateToReports,
+        onNavigateToHistory = onNavigateToHistory,
+        onNavigateToSettings = onNavigateToSettings,
+        onNavigateToProfile = {},
+        onLogout = {}
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Patient Registry") },
+                    navigationIcon = {
+                        CanineIconButton(
+                            icon = Icons.Default.Menu,
+                            onClick = { coroutineScope.launch { drawerState.open() } },
+                            contentDescription = "Menu"
                         )
-                        
-                        if (index == state.filteredPatientsList.lastIndex && !state.isLoadingNextPage && !state.isLastPage) {
-                            LaunchedEffect(key1 = index) {
-                                onLoadNextPage()
+                    },
+                    actions = {
+                        CanineIconButton(icon = Icons.Default.MoreVert, onClick = { showFilterSheet = true }, contentDescription = "Filter Options")
+                    }
+                )
+            },
+            bottomBar = {
+                com.canineai.android.presentation.components.CanineBottomNavigationBar(
+                    currentRoute = "patients",
+                    onNavigateToHome = onNavigateToHome,
+                    onNavigateToPatients = { /* Already on Patients */ },
+                    onNavigateToUpload = onNavigateToUpload,
+                    onNavigateToAnalysis = { onNavigateToUpload() },
+                    onNavigateToReports = onNavigateToReports
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = onNavigateToAddPatient,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Patient")
+                }
+            },
+            modifier = modifier
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(16.dp)
+            ) {
+                // Search Bar
+                CanineTextField(
+                    value = state.searchQuery,
+                    onValueChange = { viewModel.onEvent(PatientEvent.SearchQueryChanged(it)) },
+                    label = "Search Patients",
+                    placeholder = "Search by ID, name, phone...",
+                    leadingIcon = Icons.Default.Search,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Error display
+                state.apiError?.let { err ->
+                    CanineStatusChip(
+                        text = err,
+                        status = CanineStatus.ERROR,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                            .clickable { viewModel.onEvent(PatientEvent.DismissError) }
+                    )
+                }
+
+                if (state.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CanineLoadingState(message = "Fetching patient registry...")
+                    }
+                } else if (state.filteredPatientsList.isEmpty()) {
+                    CanineEmptyState(
+                        title = "No Patients Registered",
+                        message = if (state.searchQuery.isNotEmpty()) "No patients found matching your search criteria." else "Add patient profiles to start CBCT diagnostics.",
+                        icon = Icons.Default.Person,
+                        actionText = if (state.searchQuery.isEmpty()) "Admit Patient" else null,
+                        onActionClick = if (state.searchQuery.isEmpty()) { { onNavigateToAddPatient() } } else null
+                    )
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        itemsIndexed(
+                            items = state.filteredPatientsList,
+                            key = { _, patient -> patient.id }
+                        ) { index, patient ->
+                            PatientRowCard(
+                                patient = patient,
+                                onClick = { onPatientClick(patient.id) }
+                            )
+                            
+                            if (index == state.filteredPatientsList.lastIndex && !state.isLoadingNextPage && !state.isLastPage) {
+                                LaunchedEffect(key1 = index) {
+                                    onLoadNextPage()
+                                }
                             }
                         }
-                    }
-                    
-                    if (state.isLoadingNextPage) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CanineCircularLoader()
+                        
+                        if (state.isLoadingNextPage) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CanineCircularLoader()
+                                }
                             }
                         }
                     }
@@ -159,7 +196,6 @@ fun PatientListScreen(
         }
     }
 
-    // Advanced Bottom Filter Sheet
     if (showFilterSheet) {
         ModalBottomSheet(onDismissRequest = { showFilterSheet = false }) {
             Column(
@@ -173,7 +209,6 @@ fun PatientListScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // Gender Filters
                 Text("Gender", style = MaterialTheme.typography.titleSmall)
                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     FilterChip(
@@ -197,7 +232,6 @@ fun PatientListScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Status Filters
                 Text("Status", style = MaterialTheme.typography.titleSmall)
                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                     FilterChip(
@@ -231,7 +265,6 @@ fun PatientListScreen(
     }
 }
 
-// Helper function to format Patient ID to enterprise format (PT-00001)
 private fun formatPatientId(id: String): String {
     return try {
         val num = id.toInt()

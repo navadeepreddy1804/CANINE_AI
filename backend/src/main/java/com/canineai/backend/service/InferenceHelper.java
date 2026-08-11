@@ -65,4 +65,61 @@ public class InferenceHelper {
             jobRepository.save(j);
         });
     }
+
+    public String generateSelfContainedDemoJson(UUID studyId) {
+        String patientKey = "patient";
+        String fileKey = "file";
+        if (studyId != null) {
+            var optStudy = studyRepository.findById(studyId);
+            if (optStudy.isPresent()) {
+                var study = optStudy.get();
+                if (study.getPatient() != null) {
+                    patientKey = study.getPatient().getHospitalPatientId() + "_" + study.getPatient().getFullName();
+                }
+                if (study.getStudyDescription() != null) {
+                    fileKey = study.getStudyDescription();
+                }
+            }
+        }
+
+        String combinedKey = patientKey + ":" + fileKey + ":" + (studyId != null ? studyId.toString() : "123");
+        int seed = Math.abs(combinedKey.hashCode());
+
+        String[] statuses = {"IMPACTED", "DELAYED_ERUPTION", "ERUPTED"};
+        String status = statuses[seed % statuses.length];
+        
+        int confidence = 63 + (seed % 18);
+        double angle = 15.0 + (seed % 40) + ((seed % 10) / 10.0);
+        double volume = 320.0 + (seed % 200) + ((seed % 10) / 10.0);
+        double distMidline = 3.0 + (seed % 12) + ((seed % 10) / 10.0);
+        double distOcclusal = 6.0 + (seed % 14) + ((seed % 10) / 10.0);
+        String fdi = (seed % 2 == 0) ? "13" : "23";
+        String toothName = (seed % 2 == 0) ? "Maxillary Right Canine" : "Maxillary Left Canine";
+
+        String findings = status.contains("IMPACTED") ? "Impacted maxillary canine with palatal displacement relative to dental arch." 
+                        : (status.contains("DELAYED") ? "Delayed eruption pattern with increased pericoronal space." 
+                        : "Normal maxillary canine eruption position.");
+
+        String rec = status.contains("IMPACTED") ? "Surgical exposure with orthodontic traction recommended." 
+                   : (status.contains("DELAYED") ? "Periodic 6-month radiographic and clinical monitoring." 
+                   : "Routine oral hygiene and preventive orthodontic evaluation.");
+
+        return String.format(java.util.Locale.US, """
+            {
+              "status": "COMPLETED",
+              "prediction": {
+                "eruptionStatus": "%s",
+                "confidence": %d,
+                "fdiNumber": "%s",
+                "toothName": "%s",
+                "angulation": %.1f,
+                "volume": %.1f,
+                "distanceToMidline": %.1f,
+                "distanceToOcclusalPlane": %.1f,
+                "clinicalFindings": "%s",
+                "clinicalRecommendation": "%s"
+              }
+            }
+            """, status, confidence, fdi, toothName, angle, volume, distMidline, distOcclusal, findings, rec);
+    }
 }

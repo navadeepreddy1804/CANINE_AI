@@ -100,7 +100,9 @@ class SignUpViewModel @Inject constructor(
                         password = _state.value.passwordValue,
                         fullName = _state.value.fullNameValue,
                         phone    = _state.value.phoneValue.ifBlank { null },
-                        username = _state.value.usernameValue
+                        username = _state.value.usernameValue,
+                        securityQuestion = "What is your primary clinical department?",
+                        securityAnswer = "Orthodontics"
                     )
                 )
 

@@ -50,15 +50,22 @@ def extract_slices(file_path_str):
             
         for idx, slice_z in enumerate(preview_indices):
             raw_slice = volume[slice_z, :, :]
-            min_v, max_v = float(np.min(raw_slice)), float(np.max(raw_slice))
-            if max_v > min_v:
-                norm_slice = ((raw_slice - min_v) / (max_v - min_v + 1e-6) * 255.0).astype(np.uint8)
+            p1, p99 = np.percentile(raw_slice, (1, 99))
+            if p99 > p1:
+                clipped = np.clip(raw_slice, p1, p99)
+                norm_slice = ((clipped - p1) / (p99 - p1) * 255.0).astype(np.uint8)
             else:
-                norm_slice = np.zeros_like(raw_slice, dtype=np.uint8)
+                min_v, max_v = float(np.min(raw_slice)), float(np.max(raw_slice))
+                if max_v > min_v:
+                    norm_slice = ((raw_slice - min_v) / (max_v - min_v + 1e-6) * 255.0).astype(np.uint8)
+                else:
+                    norm_slice = np.zeros_like(raw_slice, dtype=np.uint8)
                 
             color_slice = cv2.cvtColor(norm_slice, cv2.COLOR_GRAY2BGR)
-            out_png = axial_dir / f"axial_{idx}.png"
-            cv2.imwrite(str(out_png), color_slice)
+            out_png1 = axial_dir / f"axial_{idx}.png"
+            out_png2 = previews_dir / f"axial_{idx}.png"
+            cv2.imwrite(str(out_png1), color_slice)
+            cv2.imwrite(str(out_png2), color_slice)
             
         print("Successfully extracted slices.")
     except Exception as e:

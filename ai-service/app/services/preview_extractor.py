@@ -73,6 +73,13 @@ class PreviewExtractor:
         }
 
         for previews_dir in previews_dirs:
+            axial_sub = previews_dir / "axial"
+            coronal_sub = previews_dir / "coronal"
+            sagittal_sub = previews_dir / "sagittal"
+            axial_sub.mkdir(parents=True, exist_ok=True)
+            coronal_sub.mkdir(parents=True, exist_ok=True)
+            sagittal_sub.mkdir(parents=True, exist_ok=True)
+
             PreviewExtractor.save_slice_as_png(axial_slice, str(previews_dir / "axial.png"))
             PreviewExtractor.save_slice_as_png(coronal_slice, str(previews_dir / "coronal.png"))
             PreviewExtractor.save_slice_as_png(sagittal_slice, str(previews_dir / "sagittal.png"))
@@ -80,14 +87,17 @@ class PreviewExtractor:
             for idx, slice_idx in enumerate(preview_indices):
                 rep = volume[slice_idx, :, :]
                 PreviewExtractor.save_slice_as_png(rep, str(previews_dir / f"axial_{idx}.png"))
+                PreviewExtractor.save_slice_as_png(rep, str(axial_sub / f"axial_{idx}.png"))
 
             for idx, slice_idx in enumerate(coronal_indices):
                 rep = volume[:, slice_idx, :]
                 PreviewExtractor.save_slice_as_png(rep, str(previews_dir / f"coronal_{idx}.png"))
+                PreviewExtractor.save_slice_as_png(rep, str(coronal_sub / f"coronal_{idx}.png"))
 
             for idx, slice_idx in enumerate(sagittal_indices):
                 rep = volume[:, :, slice_idx]
                 PreviewExtractor.save_slice_as_png(rep, str(previews_dir / f"sagittal_{idx}.png"))
+                PreviewExtractor.save_slice_as_png(rep, str(sagittal_sub / f"sagittal_{idx}.png"))
 
             with open(previews_dir / "preview_manifest.json", "w", encoding="utf-8") as manifest_file:
                 json.dump(metadata, manifest_file, indent=2)
@@ -110,11 +120,18 @@ class PreviewExtractor:
 
     @staticmethod
     def save_slice_as_png(slice_data: np.ndarray, output_path: str):
-        min_val = float(np.min(slice_data))
-        max_val = float(np.max(slice_data))
-        if max_val - min_val > 0:
-            normalized = ((slice_data - min_val) / (max_val - min_val) * 255.0).astype(np.uint8)
+        if slice_data is None or slice_data.size == 0:
+            return
+        p1, p99 = np.percentile(slice_data, (1, 99))
+        if p99 > p1:
+            clipped = np.clip(slice_data, p1, p99)
+            normalized = ((clipped - p1) / (p99 - p1) * 255.0).astype(np.uint8)
         else:
-            normalized = np.zeros(slice_data.shape, dtype=np.uint8)
+            min_val = float(np.min(slice_data))
+            max_val = float(np.max(slice_data))
+            if max_val > min_val:
+                normalized = ((slice_data - min_val) / (max_val - min_val) * 255.0).astype(np.uint8)
+            else:
+                normalized = np.zeros(slice_data.shape, dtype=np.uint8)
 
         cv2.imwrite(output_path, normalized)

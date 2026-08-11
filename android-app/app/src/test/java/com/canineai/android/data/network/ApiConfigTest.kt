@@ -21,4 +21,11 @@ class ApiConfigTest {
 
         assertEquals("https://api.canineai.example.com/api/v1/", baseUrl)
     }
+
+    @Test
+    fun shouldResolveLanBaseUrlWhenNotEmulator() {
+        val baseUrl = ApiConfig.resolveBaseUrl(configuredBaseUrl = null, isEmulator = false)
+        assert(baseUrl.contains(":8080/api/v1/"))
+        assert(baseUrl.startsWith("http://"))
+    }
 }

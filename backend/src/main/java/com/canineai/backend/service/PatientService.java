@@ -28,6 +28,11 @@ public interface PatientService {
     PatientResponseDto getPatient(UUID id, String currentUser);
 
     /**
+     * Fetches Patient EMR profile by hospital patient ID (e.g. PT-00001). Enforces owner access check.
+     */
+    PatientResponseDto getPatientByHospitalId(String hospitalPatientId, String currentUser);
+
+    /**
      * Soft-deletes a patient EMR file. Enforces ownership check.
      */
     void deletePatient(UUID id, String currentUser);

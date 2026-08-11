@@ -210,25 +210,42 @@ public class StudyPreviewController {
         for (Path uploadRoot : this.uploadRoots) {
             Path previewRoot = uploadRoot.resolve(previewPathStr).normalize();
             if (index != null) {
-                Path indexedPath = previewRoot.resolve(cleanType + "_" + index + ".png").normalize();
-                if (isValidPath(indexedPath, uploadRoot) && Files.exists(indexedPath) && Files.isRegularFile(indexedPath)) {
-                    return Optional.of(indexedPath);
+                List<Path> candidates = List.of(
+                    previewRoot.resolve(cleanType + "_" + index + ".png").normalize(),
+                    previewRoot.resolve(cleanType).resolve(cleanType + "_" + index + ".png").normalize(),
+                    previewRoot.resolve(cleanType).resolve(index + ".png").normalize(),
+                    previewRoot.resolve(cleanType + "_overlay_" + index + ".png").normalize(),
+                    previewRoot.resolve(cleanType).resolve(cleanType + "_overlay_" + index + ".png").normalize()
+                );
+                for (Path candidate : candidates) {
+                    if (isValidPath(candidate, uploadRoot) && Files.exists(candidate) && Files.isRegularFile(candidate)) {
+                        return Optional.of(candidate);
+                    }
                 }
                 continue;
             }
 
-            Path directPath = previewRoot.resolve(cleanType + ".png").normalize();
-            if (isValidPath(directPath, uploadRoot) && Files.exists(directPath) && Files.isRegularFile(directPath)) {
-                return Optional.of(directPath);
+            List<Path> directCandidates = List.of(
+                previewRoot.resolve(cleanType + ".png").normalize(),
+                previewRoot.resolve(cleanType).resolve(cleanType + ".png").normalize(),
+                previewRoot.resolve(cleanType).resolve("middle.png").normalize()
+            );
+            for (Path candidate : directCandidates) {
+                if (isValidPath(candidate, uploadRoot) && Files.exists(candidate) && Files.isRegularFile(candidate)) {
+                    return Optional.of(candidate);
+                }
             }
 
             for (int fallbackIndex = 0; fallbackIndex < 20; fallbackIndex++) {
-                Path indexedPath = previewRoot.resolve(cleanType + "_" + fallbackIndex + ".png").normalize();
-                if (!isValidPath(indexedPath, uploadRoot)) {
-                    continue;
-                }
-                if (Files.exists(indexedPath) && Files.isRegularFile(indexedPath)) {
-                    return Optional.of(indexedPath);
+                List<Path> fallbacks = List.of(
+                    previewRoot.resolve(cleanType + "_" + fallbackIndex + ".png").normalize(),
+                    previewRoot.resolve(cleanType).resolve(cleanType + "_" + fallbackIndex + ".png").normalize(),
+                    previewRoot.resolve(cleanType).resolve(fallbackIndex + ".png").normalize()
+                );
+                for (Path candidate : fallbacks) {
+                    if (isValidPath(candidate, uploadRoot) && Files.exists(candidate) && Files.isRegularFile(candidate)) {
+                        return Optional.of(candidate);
+                    }
                 }
             }
         }

@@ -120,4 +120,19 @@ public class ReportResponse {
 
     @Schema(description = "Canine bounding box height", example = "140.0")
     private Double boundingBoxHeight;
+
+    @Schema(description = "Human-friendly Study Display ID", example = "ST-20260808-0001")
+    private String studyDisplayId;
+
+    @Schema(description = "Minimum configured confidence threshold percentage", example = "63")
+    private Integer minConfidenceThreshold;
+
+    @Schema(description = "Clinical interpretation of confidence score", example = "Within acceptable demo threshold")
+    private String confidenceInterpretation;
+
+    @Schema(description = "AI-generated clinical decision support suggestions")
+    private String clinicalSuggestions;
+
+    @Schema(description = "Formatted approved/generated timestamp string", example = "08 Aug 2026, 08:32 AM")
+    private String formattedApprovedAt;
 }

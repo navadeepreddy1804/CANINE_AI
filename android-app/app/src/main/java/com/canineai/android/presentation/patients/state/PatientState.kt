@@ -29,7 +29,7 @@ data class PatientState(
     val inputAge: String = "",
     val inputAgeError: String? = null,
     val inputGender: String = "Male",
-    val inputBloodGroup: String = "",
+    val inputBloodGroup: String = "O+",
     val inputDob: String = "",
     val inputPhone: String = "",
     val inputPhoneError: String? = null,
@@ -43,6 +43,7 @@ data class PatientState(
     val isFormSaving: Boolean = false,
     val showDeleteConfirmation: Boolean = false,
     val showSuccessDialog: Boolean = false,
+    val createdPatient: PatientItem? = null,
     val apiError: String? = null
 ) {
     val isFormValid: Boolean
@@ -51,8 +52,7 @@ data class PatientState(
                 inputAge.isNotBlank() && 
                 inputAgeError == null && 
                 inputPhone.isNotBlank() && 
-                inputPhoneError == null &&
-                inputBloodGroup.isNotBlank()
+                inputPhoneError == null
 }
 
 @Immutable
@@ -65,7 +65,10 @@ data class PatientItem(
     val email: String,
     val status: String, // Active / Archived
     val lastAnalysisDate: String?
-)
+) {
+    val displayId: String
+        get() = com.canineai.android.util.PatientIdFormatter.format(id)
+}
 
 @Immutable
 data class PatientDetails(
@@ -84,7 +87,10 @@ data class PatientDetails(
     val hospital: String,
     val registrationDate: String,
     val status: String
-)
+) {
+    val displayId: String
+        get() = com.canineai.android.util.PatientIdFormatter.format(id)
+}
 
 @Immutable
 data class PatientTimelineItem(
