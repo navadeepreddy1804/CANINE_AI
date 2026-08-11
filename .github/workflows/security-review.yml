@@ -1,0 +1,74 @@
+name: Enterprise Backend Security & Performance Review
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1'
+
+jobs:
+  security-and-performance-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js & Java
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Semgrep SAST Scanning
+        uses: semgrep/actions@v1
+        continue-on-error: true
+        with:
+          config: p/owasp-top-10
+
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'table'
+          output: 'trivy-report.txt'
+
+      - name: Run Gitleaks Secret Scanner
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install k6 for Load Testing
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5FD82CFA965E62C353B4B3254A389F516663964
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run Baseline Load Test (100 VUs, 1 min)
+        run: |
+          k6 run automation/performance/k6-load-test.js || true
+
+      - name: Upload Security & Performance Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-performance-audit-results
+          path: |
+            Vulnerability Test Results/
+            automation/performance/
+          retention-days: 30
+
+      - name: Publish Action Summary
+        if: always()
+        run: |
+          if [ -f "Vulnerability Test Results/executive-summary.md" ]; then
+            cat "Vulnerability Test Results/executive-summary.md" >> $GITHUB_STEP_SUMMARY
+          fi

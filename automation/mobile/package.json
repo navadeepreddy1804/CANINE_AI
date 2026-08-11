@@ -1,0 +1,22 @@
+{
+  "name": "canineai-appium-mobile-automation",
+  "version": "1.0.0",
+  "description": "Enterprise Appium Mobile E2E Automation Framework for CanineAI Android Application",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "npx ts-node src/runners/test-runner.ts",
+    "generate-reports": "npx ts-node src/utils/report-generator.ts"
+  },
+  "dependencies": {
+    "webdriverio": "^8.38.0",
+    "appium": "^2.11.0",
+    "exceljs": "^4.4.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "typescript": "^5.5.2",
+    "ts-node": "^10.9.2"
+  }
+}
