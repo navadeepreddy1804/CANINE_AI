@@ -10,7 +10,7 @@ async function runLoad300() {
   console.log(`Executed: ${cases.length} | Passed: ${passed} | Failed: ${cases.length - passed}`);
   console.log(`Pass Rate: ${((passed / cases.length) * 100).toFixed(2)}%`);
 
-  saveJobResult('load-300.json', cases);
+  await saveJobResult('load-300.xlsx', cases);
 }
 
 runLoad300().catch(console.error);

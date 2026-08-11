@@ -17,12 +17,12 @@ async function compileMasterReport() {
   fs.mkdirSync(htmlDir, { recursive: true });
 
   const jobFiles = [
-    { file: 'selenium-300.json', name: 'Selenium — Website Tests', prefix: 'SEL' },
-    { file: 'appium-300.json', name: 'Appium — Android Tests', prefix: 'APP' },
-    { file: 'api-300.json', name: 'Unit Tests — API', prefix: 'API' },
-    { file: 'validation-300.json', name: 'Validation Tests', prefix: 'VAL' },
-    { file: 'deployment-300.json', name: 'Deployment Status', prefix: 'DEP' },
-    { file: 'load-300.json', name: 'Load Testing — Performance', prefix: 'LOAD' }
+    { file: 'selenium-300.xlsx', name: 'Selenium — Website Tests', prefix: 'SEL' },
+    { file: 'appium-300.xlsx', name: 'Appium — Android Tests', prefix: 'APP' },
+    { file: 'api-300.xlsx', name: 'Unit Tests — API', prefix: 'API' },
+    { file: 'validation-300.xlsx', name: 'Validation Tests', prefix: 'VAL' },
+    { file: 'deployment-300.xlsx', name: 'Deployment Status', prefix: 'DEP' },
+    { file: 'load-300.xlsx', name: 'Load Testing — Performance', prefix: 'LOAD' }
   ];
 
   let allCases: TestCaseItem[] = [];
@@ -30,12 +30,32 @@ async function compileMasterReport() {
   for (const j of jobFiles) {
     let cases: TestCaseItem[] = [];
     const directPath = path.join(reportsDir, j.file);
-    const artifactSubdir = path.join(artifactsDir, j.file.replace('.json', '-results'), j.file);
+    const artifactSubdir = path.join(artifactsDir, j.file.replace('.xlsx', '-results'), j.file);
+    let targetFile = null;
 
     if (fs.existsSync(directPath)) {
-      cases = JSON.parse(fs.readFileSync(directPath, 'utf8'));
+      targetFile = directPath;
     } else if (fs.existsSync(artifactSubdir)) {
-      cases = JSON.parse(fs.readFileSync(artifactSubdir, 'utf8'));
+      targetFile = artifactSubdir;
+    }
+
+    if (targetFile) {
+      const wb = new ExcelJS.Workbook();
+      await wb.xlsx.readFile(targetFile);
+      const sheet = wb.getWorksheet(1);
+      sheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return; // skip header
+        cases.push({
+          testId: row.getCell(1).text,
+          suiteName: row.getCell(2).text,
+          category: row.getCell(3).text,
+          testName: row.getCell(4).text,
+          priority: row.getCell(5).text as any,
+          status: row.getCell(6).text as any,
+          durationMs: parseInt(row.getCell(7).text, 10),
+          failureReason: row.getCell(8).text || undefined
+        });
+      });
     } else {
       console.warn(`File ${j.file} not found; generating fallback 300 test cases for ${j.name}...`);
       cases = generate300SuiteTestCases(j.name, j.prefix);

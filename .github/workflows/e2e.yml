@@ -39,7 +39,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: selenium-300-results
-          path: automation/mega-suite/reports/selenium-300.json
+          path: automation/mega-suite/reports/selenium-300.xlsx
 
   appium-android-tests:
     name: Appium — Android Tests (300)
@@ -67,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: appium-300-results
-          path: automation/mega-suite/reports/appium-300.json
+          path: automation/mega-suite/reports/appium-300.xlsx
 
   unit-api-tests:
     name: Unit Tests — API (300)
@@ -95,7 +95,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: api-300-results
-          path: automation/mega-suite/reports/api-300.json
+          path: automation/mega-suite/reports/api-300.xlsx
 
   validation-tests:
     name: Validation Tests (300)
@@ -123,7 +123,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: validation-300-results
-          path: automation/mega-suite/reports/validation-300.json
+          path: automation/mega-suite/reports/validation-300.xlsx
 
   deployment-status:
     name: Deployment Status (300)
@@ -151,7 +151,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: deployment-300-results
-          path: automation/mega-suite/reports/deployment-300.json
+          path: automation/mega-suite/reports/deployment-300.xlsx
 
   load-testing-performance:
     name: Load Testing — Performance (300)
@@ -186,10 +186,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: load-300-results
-          path: automation/mega-suite/reports/load-300.json
+          path: automation/mega-suite/reports/load-300.xlsx
 
   compile-master-report:
     name: Compile Master Report & Deploy
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
     needs:
       - selenium-website-tests
       - appium-android-tests

@@ -10,7 +10,7 @@ async function runDeployment300() {
   console.log(`Executed: ${cases.length} | Passed: ${passed} | Failed: ${cases.length - passed}`);
   console.log(`Pass Rate: ${((passed / cases.length) * 100).toFixed(2)}%`);
 
-  saveJobResult('deployment-300.json', cases);
+  await saveJobResult('deployment-300.xlsx', cases);
 }
 
 runDeployment300().catch(console.error);

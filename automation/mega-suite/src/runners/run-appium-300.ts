@@ -10,7 +10,7 @@ async function runAppiumAndroid300() {
   console.log(`Executed: ${cases.length} | Passed: ${passed} | Failed: ${cases.length - passed}`);
   console.log(`Pass Rate: ${((passed / cases.length) * 100).toFixed(2)}%`);
 
-  saveJobResult('appium-300.json', cases);
+  await saveJobResult('appium-300.xlsx', cases);
 }
 
 runAppiumAndroid300().catch(console.error);
