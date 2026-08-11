@@ -29,11 +29,13 @@ export function generate300SuiteTestCases(suiteName: string, prefix: string): Te
     // Assign non-zero duration (3ms to 10ms fallback if rapid assertion)
     const measuredMs = Math.floor(Math.random() * 8) + 3;
 
+    const shortSuite = suiteName.split(' — ')[0];
+
     cases.push({
       testId: `TC_${prefix}_${pad}`,
       suiteName,
       category,
-      testName: `${category} Assertion Scenario #${i}`,
+      testName: `${shortSuite} ${category} Assertion Scenario #${i}`,
       priority: i % 10 === 0 ? 'Critical' : i % 3 === 0 ? 'High' : 'Medium',
       status: isFail ? 'FAILED' : 'PASSED',
       durationMs: measuredMs,
