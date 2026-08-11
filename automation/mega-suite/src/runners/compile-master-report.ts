@@ -43,19 +43,21 @@ async function compileMasterReport() {
       const wb = new ExcelJS.Workbook();
       await wb.xlsx.readFile(targetFile);
       const sheet = wb.getWorksheet(1);
-      sheet.eachRow((row, rowNumber) => {
-        if (rowNumber === 1) return; // skip header
-        cases.push({
-          testId: row.getCell(1).text,
-          suiteName: row.getCell(2).text,
-          category: row.getCell(3).text,
-          testName: row.getCell(4).text,
-          priority: row.getCell(5).text as any,
-          status: row.getCell(6).text as any,
-          durationMs: parseInt(row.getCell(7).text, 10),
-          failureReason: row.getCell(8).text || undefined
+      if (sheet) {
+        sheet.eachRow((row, rowNumber) => {
+          if (rowNumber === 1) return; // skip header
+          cases.push({
+            testId: row.getCell(1).text,
+            suiteName: row.getCell(2).text,
+            category: row.getCell(3).text,
+            testName: row.getCell(4).text,
+            priority: row.getCell(5).text as any,
+            status: row.getCell(6).text as any,
+            durationMs: parseInt(row.getCell(7).text, 10),
+            failureReason: row.getCell(8).text || undefined
+          });
         });
-      });
+      }
     } else {
       console.warn(`File ${j.file} not found; generating fallback 300 test cases for ${j.name}...`);
       cases = generate300SuiteTestCases(j.name, j.prefix);
