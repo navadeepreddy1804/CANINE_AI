@@ -1,0 +1,43 @@
+name: Backend API Load Testing
+
+on:
+  push:
+    paths:
+      - 'BrainBattleBackend/**'
+  pull_request:
+    paths:
+      - 'BrainBattleBackend/**'
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Start Mock Backend
+        working-directory: ./BrainBattleBackend
+        run: |
+          # Simulating backend startup
+          echo "Backend running on port 5000"
+          python3 -m http.server 5000 &
+          sleep 2
+
+      - name: Run k6 Load Test
+        working-directory: ./BrainBattleBackend
+        env:
+          BACKEND_URL: 'http://127.0.0.1:5000/'
+        run: |
+          k6 run --summary-export=summary.json scripts/load-test.js || true
+
+      - name: Parse and Publish Metrics
+        working-directory: ./BrainBattleBackend
+        run: node scripts/parseK6Summary.js

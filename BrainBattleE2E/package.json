@@ -1,0 +1,9 @@
+{
+  "name": "brainbattle-e2e",
+  "version": "1.0.0",
+  "devDependencies": {
+    "exceljs": "^4.4.0",
+    "selenium-webdriver": "^4.19.0",
+    "mocha": "^10.4.0"
+  }
+}
