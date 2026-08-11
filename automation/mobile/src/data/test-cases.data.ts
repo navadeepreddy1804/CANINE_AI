@@ -17,7 +17,7 @@ export function generate400MobileTestCases(): TestCaseResult[] {
       cases.push({
         testId,
         module,
-        testName: `${module} - Enterprise Mobile Test Scenario #${i}`,
+        testName: `Enterprise Mobile Test Scenario #${i}`,
         priority: i % 5 === 0 ? 'Critical' : priority,
         status: isFail ? 'FAILED' : 'PASSED',
         durationMs: Math.floor(Math.random() * 300) + 120,

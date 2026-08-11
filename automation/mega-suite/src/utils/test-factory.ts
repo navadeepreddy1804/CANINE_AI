@@ -33,7 +33,7 @@ export function generate300SuiteTestCases(suiteName: string, prefix: string): Te
       testId: `TC_${prefix}_${pad}`,
       suiteName,
       category,
-      testName: `[${suiteName}] ${category} Assertion Scenario #${i}`,
+      testName: `${category} Assertion Scenario #${i}`,
       priority: i % 10 === 0 ? 'Critical' : i % 3 === 0 ? 'High' : 'Medium',
       status: isFail ? 'FAILED' : 'PASSED',
       durationMs: measuredMs,
