@@ -1,0 +1,25 @@
+{
+  "name": "canineai-mega-suite-1800",
+  "version": "1.0.0",
+  "description": "Master 1800 Test Case E2E Suite for CanineAI Platform",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test:selenium": "npx ts-node src/runners/run-selenium-300.ts",
+    "test:appium": "npx ts-node src/runners/run-appium-300.ts",
+    "test:api": "npx ts-node src/runners/run-api-300.ts",
+    "test:validation": "npx ts-node src/runners/run-validation-300.ts",
+    "test:deployment": "npx ts-node src/runners/run-deployment-300.ts",
+    "test:load": "npx ts-node src/runners/run-load-300.ts",
+    "compile-report": "npx ts-node src/runners/compile-master-report.ts"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "typescript": "^5.5.2",
+    "ts-node": "^10.9.2"
+  }
+}

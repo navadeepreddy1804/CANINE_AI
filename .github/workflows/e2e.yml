@@ -1,0 +1,245 @@
+name: Scale E2E suites to 1800 test cases with robust Selenium & Appium
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  selenium-website-tests:
+    name: Selenium — Website Tests (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          cd automation/mega-suite
+          npm ci || npm install
+
+      - name: Execute Selenium Website Suite (300 Test Cases)
+        run: |
+          cd automation/mega-suite
+          npx ts-node src/runners/run-selenium-300.ts
+
+      - name: Upload Job Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-300-results
+          path: automation/mega-suite/reports/selenium-300.json
+
+  appium-android-tests:
+    name: Appium — Android Tests (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          cd automation/mega-suite
+          npm ci || npm install
+
+      - name: Execute Appium Android Suite (300 Test Cases)
+        run: |
+          cd automation/mega-suite
+          npx ts-node src/runners/run-appium-300.ts
+
+      - name: Upload Job Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: appium-300-results
+          path: automation/mega-suite/reports/appium-300.json
+
+  unit-api-tests:
+    name: Unit Tests — API (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          cd automation/mega-suite
+          npm ci || npm install
+
+      - name: Execute API Unit Test Suite (300 Test Cases)
+        run: |
+          cd automation/mega-suite
+          npx ts-node src/runners/run-api-300.ts
+
+      - name: Upload Job Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-300-results
+          path: automation/mega-suite/reports/api-300.json
+
+  validation-tests:
+    name: Validation Tests (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          cd automation/mega-suite
+          npm ci || npm install
+
+      - name: Execute Validation Test Suite (300 Test Cases)
+        run: |
+          cd automation/mega-suite
+          npx ts-node src/runners/run-validation-300.ts
+
+      - name: Upload Job Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-300-results
+          path: automation/mega-suite/reports/validation-300.json
+
+  deployment-status:
+    name: Deployment Status (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          cd automation/mega-suite
+          npm ci || npm install
+
+      - name: Execute Deployment Status Suite (300 Test Cases)
+        run: |
+          cd automation/mega-suite
+          npx ts-node src/runners/run-deployment-300.ts
+
+      - name: Upload Job Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-300-results
+          path: automation/mega-suite/reports/deployment-300.json
+
+  load-testing-performance:
+    name: Load Testing — Performance (300)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5FD82CFA965E62C353B4B3254A389F516663964
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Install Dependencies
+        run: |
+          cd automation/mega-suite
+          npm ci || npm install
+
+      - name: Execute Performance Load Suite (300 Test Cases & k6 baseline)
+        run: |
+          cd automation/mega-suite
+          npx ts-node src/runners/run-load-300.ts
+
+      - name: Parse k6 Summary Defensively
+        run: |
+          node automation/performance/parseK6Summary.js || true
+
+      - name: Upload Job Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-300-results
+          path: automation/mega-suite/reports/load-300.json
+
+  compile-master-report:
+    name: Compile Master Report & Deploy
+    needs:
+      - selenium-website-tests
+      - appium-android-tests
+      - unit-api-tests
+      - validation-tests
+      - deployment-status
+      - load-testing-performance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: |
+          cd automation/mega-suite
+          npm ci || npm install
+
+      - name: Download All Job Results
+        uses: actions/download-artifact@v4
+        with:
+          path: automation/mega-suite/reports/artifacts/
+
+      - name: Compile Master 1800 Test Report
+        run: |
+          cd automation/mega-suite
+          npx ts-node src/runners/compile-master-report.ts
+
+      - name: Setup Web Directory for Pages Deployment
+        run: |
+          mkdir -p dist/reports/latest
+          mkdir -p dist/reports/history/build-${{ github.run_number }}
+          cp -r automation/mega-suite/reports/html/* dist/reports/latest/
+          cp -r automation/mega-suite/reports/html/* dist/reports/history/build-${{ github.run_number }}/
+          cp -r automation/mega-suite/reports/excel/ dist/reports/latest/
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
