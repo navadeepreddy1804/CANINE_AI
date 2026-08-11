@@ -17,8 +17,8 @@ export function generate400WebTestCases(): WebTestCaseResult[] {
       cases.push({
         testId,
         module,
-        testName: `Web Selenium E2E Scenario #${i}`,
-        description: `Verify Web Selenium E2E Scenario #${i}`,
+        testName: `${module} Web Selenium E2E Scenario #${i}`,
+        description: `Verify ${module} Web Selenium E2E Scenario #${i}`,
         steps: '1. Navigate to page. 2. Perform action. 3. Verify result',
         expectedResult: 'System behaves as expected according to requirements',
         priority: i % 5 === 0 ? 'Critical' : priority,
