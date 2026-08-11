@@ -6,6 +6,9 @@ export interface WebTestCaseResult {
   testId: string;
   module: string;
   testName: string;
+  description: string;
+  steps: string;
+  expectedResult: string;
   priority: 'Critical' | 'High' | 'Medium' | 'Low';
   status: 'PASSED' | 'FAILED' | 'SKIPPED' | 'BLOCKED';
   durationMs: number;
@@ -44,10 +47,11 @@ export class WebReportGenerator {
     sheet1.columns = [
       { header: 'Test ID', key: 'testId', width: 15 },
       { header: 'Module', key: 'module', width: 20 },
-      { header: 'Test Name', key: 'testName', width: 35 },
-      { header: 'Priority', key: 'priority', width: 12 },
-      { header: 'Status', key: 'status', width: 12 },
-      { header: 'Execution Time (ms)', key: 'durationMs', width: 20 }
+      { header: 'Test Case Name', key: 'testName', width: 35 },
+      { header: 'Description', key: 'description', width: 50 },
+      { header: 'Steps', key: 'steps', width: 50 },
+      { header: 'Expected Result', key: 'expectedResult', width: 50 },
+      { header: 'Status', key: 'status', width: 12 }
     ];
     results.forEach(r => sheet1.addRow(r));
 
