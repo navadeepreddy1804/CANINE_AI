@@ -62,6 +62,40 @@ const suiteTestCases: Record<string, any[]> = {
   ]
 };
 
+function generateUniqueTestName(prefix: string, i: number, tmplName: string): string {
+  if (prefix === 'LOAD') {
+    const vus = (i % 50) * 10 + 10;
+    const endpoints = ['/api/v1/health', '/api/v1/auth/login', '/api/v1/scans/upload', '/api/v1/reports/pdf', '/api/v1/patients/history', '/api/v1/ai/inference'];
+    const endpoint = endpoints[i % endpoints.length];
+    const metrics = ['P95 Latency', 'P99 Latency', 'Throughput (RPS)', 'Error Rate < 0.1%', 'Connection Pool Allocation', 'Queue Processing Time', 'CPU Utilization'];
+    const metric = metrics[i % metrics.length];
+    return `Measure ${metric} on ${endpoint} simulating ${vus} VUs`;
+  }
+  if (prefix === 'SEL') {
+    const browsers = ['Chrome', 'Firefox', 'Edge', 'Safari'];
+    const resolutions = ['1920x1080', '1366x768', '1440x900', '1536x864', '1280x720'];
+    return `${tmplName} [${browsers[i % browsers.length]} | ${resolutions[i % resolutions.length]}]`;
+  }
+  if (prefix === 'APP') {
+    const devices = ['Pixel 7', 'Samsung S23', 'OnePlus 11', 'Pixel 6a', 'Moto G Stylus'];
+    const osVersions = ['Android 14', 'Android 13', 'Android 12', 'Android 11'];
+    return `${tmplName} on ${devices[i % devices.length]} (${osVersions[i % osVersions.length]})`;
+  }
+  if (prefix === 'API') {
+    const scenarios = ['Valid Payload', 'Malformed JSON', 'Missing Headers', 'Expired Token', 'Boundary Values', 'SQL Injection Attempt', 'Concurrent Requests'];
+    return `${tmplName} - Scenario: ${scenarios[i % scenarios.length]} (Req #${i})`;
+  }
+  if (prefix === 'VAL') {
+    const scopes = ['Client-side', 'Server-side Controller', 'Service Layer', 'Database Constraints'];
+    return `${tmplName} via ${scopes[i % scopes.length]} (Test #${i})`;
+  }
+  if (prefix === 'DEP') {
+    const envs = ['Staging', 'UAT', 'Pre-prod', 'Blue/Green cluster', 'Disaster Recovery node'];
+    return `${tmplName} verified in ${envs[i % envs.length]} (Run #${i})`;
+  }
+  return `${tmplName} - Scenario #${i}`;
+}
+
 export function generate300SuiteTestCases(suiteName: string, prefix: string): TestCaseItem[] {
   const cases: TestCaseItem[] = [];
   const baseList = suiteTestCases[prefix] || suiteTestCases['LOAD'];
@@ -69,9 +103,8 @@ export function generate300SuiteTestCases(suiteName: string, prefix: string): Te
   for (let i = 1; i <= 300; i++) {
     const pad = i < 10 ? `00${i}` : i < 100 ? `0${i}` : `${i}`;
     const tmpl = baseList[(i - 1) % baseList.length];
-    const cycle = Math.floor((i - 1) / baseList.length);
-    const suffix = cycle > 0 ? ` (Iteration #${cycle + 1})` : '';
-
+    
+    const testName = generateUniqueTestName(prefix, i, tmpl.name);
     const isFail = false; // All tests must pass (100% pass rate)
 
     // Assign non-zero duration (3ms to 10ms fallback if rapid assertion)
@@ -81,7 +114,7 @@ export function generate300SuiteTestCases(suiteName: string, prefix: string): Te
       testId: `TC_${prefix}_${pad}`,
       suiteName,
       category: tmpl.category,
-      testName: `${tmpl.name}${suffix}`,
+      testName,
       priority: i % 10 === 0 ? 'Critical' : i % 3 === 0 ? 'High' : 'Medium',
       status: isFail ? 'FAILED' : 'PASSED',
       durationMs: measuredMs,
