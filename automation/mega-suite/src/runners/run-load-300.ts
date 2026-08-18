@@ -2,7 +2,7 @@ import { generate300SuiteTestCases, saveJobResult } from '../utils/test-factory'
 
 async function runLoad300() {
   console.log('=====================================================');
-  console.log('📊 JOB 6: Load Testing — Performance (500 Test Cases)');
+  console.log('📊 JOB 6: Load Testing — Performance (300 Test Cases)');
   console.log('=====================================================');
 
   const cases = generate300SuiteTestCases('Load Testing — Performance', 'LOAD');

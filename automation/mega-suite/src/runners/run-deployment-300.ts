@@ -2,7 +2,7 @@ import { generate300SuiteTestCases, saveJobResult } from '../utils/test-factory'
 
 async function runDeployment300() {
   console.log('=====================================================');
-  console.log('🚀 JOB 5: Deployment Status (500 Test Cases)');
+  console.log('🚀 JOB 5: Deployment Status (300 Test Cases)');
   console.log('=====================================================');
 
   const cases = generate300SuiteTestCases('Deployment Status', 'DEP');

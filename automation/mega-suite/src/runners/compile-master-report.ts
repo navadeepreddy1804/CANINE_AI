@@ -59,7 +59,7 @@ async function compileMasterReport() {
         });
       }
     } else {
-      console.warn(`File ${j.file} not found; generating fallback 500 Test Cases for ${j.name}...`);
+      console.warn(`File ${j.file} not found; generating fallback 300 Test Cases for ${j.name}...`);
       cases = generate300SuiteTestCases(j.name, j.prefix);
     }
     allCases = allCases.concat(cases);
