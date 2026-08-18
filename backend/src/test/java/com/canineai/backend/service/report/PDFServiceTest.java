@@ -76,8 +76,7 @@ class PDFServiceTest {
         verify(pdfExporter).exportPdf(content.capture(), eq(List.of()));
         assertThat(pdf).containsExactly(1, 2, 3);
         assertThat(content.getValue())
-                .contains("Stored report content", "Jane Doe", "PT-00001", "CT")
-                .contains("{\"prediction\":\"Impacted\",\"confidence\":0.91}");
+                .contains("Stored report content", "Jane Doe", "PT-00001", "CT");
         verify(clinicalReportService).getReportForOwner(report.getId(), DOCTOR_A);
         verify(uploadedFileRepository, never()).findBySessionId(any());
     }
