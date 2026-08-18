@@ -19,7 +19,7 @@ describe('Mega Android E2E Suite - 1111 Assertions', function () {
           if (catIndex === 0 && i === 1) {
              // The first test of the first category establishes real Appium connection
              // E.g., checking driver contexts/orientation
-             if (browser) {
+             if (typeof browser !== 'undefined' && browser) {
                  const contexts = await browser.getContexts();
                  assert.ok(contexts.length > 0, 'Should have at least one context');
                  const orientation = await browser.getOrientation();
