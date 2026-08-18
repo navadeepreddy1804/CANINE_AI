@@ -65,11 +65,11 @@ const suiteTestCases: Record<string, any[]> = {
 function generateUniqueTestName(prefix: string, i: number, tmplName: string): string {
   if (prefix === 'LOAD') {
     const vus = (i % 50) * 10 + 10;
-    const endpoints = ['/api/v1/health', '/api/v1/auth/login', '/api/v1/scans/upload', '/api/v1/reports/pdf', '/api/v1/patients/history', '/api/v1/ai/inference'];
-    const endpoint = endpoints[i % endpoints.length];
-    const metrics = ['P95 Latency', 'P99 Latency', 'Throughput (RPS)', 'Error Rate < 0.1%', 'Connection Pool Allocation', 'Queue Processing Time', 'CPU Utilization'];
+    const scenarios = ['System Health Check', 'Veterinarian Authentication', 'Canine X-Ray Scan Uploads', 'Clinical Report PDF Generation', 'Patient Case History Search', 'AI Dysplasia Inference Engine', 'Dashboard Analytics Data'];
+    const scenario = scenarios[i % scenarios.length];
+    const metrics = ['P95 Latency', 'P99 Latency', 'Throughput (RPS)', 'System Error Rate', 'Connection Pool Stability', 'Queue Processing Time', 'CPU Utilization Spike'];
     const metric = metrics[i % metrics.length];
-    return `Measure ${metric} on ${endpoint} simulating ${vus} VUs`;
+    return `Evaluate ${metric} during ${scenario} at ${vus} VUs`;
   }
   if (prefix === 'SEL') {
     const browsers = ['Chrome', 'Firefox', 'Edge', 'Safari'];
