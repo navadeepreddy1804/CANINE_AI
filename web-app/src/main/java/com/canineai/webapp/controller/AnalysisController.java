@@ -34,9 +34,16 @@ public class AnalysisController {
         }
 
         String accessToken = (String) session.getAttribute("accessToken");
-        List<Map<String, Object>> patientDb = backendClient.getPatients(accessToken);
+        List<Map<String, Object>> patientDb;
+        try {
+            patientDb = backendClient.getPatients(accessToken);
+        } catch (Exception e) {
+            log.warn("[AnalysisController] Backend session token invalid or expired. Redirecting to login: {}", e.getMessage());
+            session.invalidate();
+            return "redirect:/login";
+        }
 
-        if (patientDb.isEmpty()) {
+        if (patientDb == null || patientDb.isEmpty()) {
             model.addAttribute("noPatients", true);
             model.addAttribute("noScans", true);
             return "analysis";

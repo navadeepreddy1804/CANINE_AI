@@ -35,8 +35,9 @@ export const options = {
     },
   },
   thresholds: {
-    http_req_duration: ['p(95)<500', 'p(99)<1500'],
+    http_req_duration: ['avg<=300', 'p(95)<=500', 'max<=2000'],
     http_req_failed: ['rate<0.05'],
+    http_reqs: ['rate>=100', 'count>=7000'],
   },
 };
 

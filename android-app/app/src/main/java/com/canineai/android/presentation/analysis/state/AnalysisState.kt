@@ -2,7 +2,7 @@ package com.canineai.android.presentation.analysis.state
 
 data class AnalysisState(
     // Pipeline Progress Tracking
-    val pipelineStage: PipelineStage = PipelineStage.VALIDATION,
+    val pipelineStage: PipelineStage = PipelineStage.PREPARING,
     val isRunning: Boolean = false,
     val isComplete: Boolean = false,
     val progress: Float = 0f,
@@ -58,13 +58,9 @@ data class AnalysisState(
 )
 
 enum class PipelineStage(val description: String) {
-    VALIDATION("Study Validation"),
-    PREPROCESSING("Preprocessing Volume"),
-    SEGMENTATION("ToothSeg Multi-Class Segmentation"),
-    TOOTH_LOCALIZATION("Anatomical Tooth Localization"),
-    CANINE_LOCALIZATION("Maxillary Canine Identification (FDI 13/23)"),
-    MEASUREMENTS("Volumetric & 3D PCA Measurements"),
-    PREDICTION("Demo Prediction Engine"),
-    REPORT_GEN("Clinical Report Compilation"),
-    COMPLETE("Analysis Complete")
+    PREPARING("Preparing AI analysis"),
+    PROCESSING("Uploading / processing CBCT"),
+    SEGMENTATION("Segmenting teeth"),
+    CANINE_LOCALIZATION("Locating maxillary canines"),
+    COMPLETE("Analysis complete")
 }

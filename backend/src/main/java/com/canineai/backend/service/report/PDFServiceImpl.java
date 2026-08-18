@@ -137,6 +137,9 @@ public class PDFServiceImpl implements PDFService {
 
     private String renderContent(PersistedReportDto report) {
         StringBuilder sb = new StringBuilder();
+        if (report.getReportMarkdown() != null && !report.getReportMarkdown().isBlank()) {
+            sb.append(report.getReportMarkdown()).append("\n\n");
+        }
         sb.append("# CANINEAI CLINICAL ORTHODONTIC REPORT\n\n");
         
         sb.append("## Patient Information\n");
@@ -251,7 +254,6 @@ public class PDFServiceImpl implements PDFService {
             } catch (Exception ignored) {}
         }
         sb.append("Report Generated: ").append(formattedDate).append("\n");
-        sb.append("AI Mode: ").append(aiMode.toUpperCase()).append("\n");
         return sb.toString();
     }
 

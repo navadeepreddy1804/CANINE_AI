@@ -40,6 +40,10 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 // Allow test email testing path
                 .requestMatchers("/test-email/**").permitAll()
+                // Allow study slice preview PNG image endpoints for web and mobile image renderers
+                .requestMatchers("/studies/*/previews/**", "/studies/*/previews/*/*", "/api/v1/studies/*/previews/**", "/api/v1/studies/*/previews/*/*").permitAll()
+                // Allow GPU worker polling & result completion endpoints
+                .requestMatchers("/ai/worker/**").permitAll()
                 // Require auth on all other APIs
                 .anyRequest().authenticated()
             )

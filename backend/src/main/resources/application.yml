@@ -66,6 +66,7 @@ canineai:
     client-secret: ${GOOGLE_CLIENT_SECRET:}
   ai:
     mode: ${AI_MODE:real}
+    colab-url: ${TOOTHSEG_COLAB_URL:https://mega-meetup-northeast-gordon.trycloudflare.com/predict/toothseg}
     minimum-confidence: ${AI_MIN_CONFIDENCE:63}
     gateway:
       api-key: ${INTERNAL_GATEWAY_KEY:sk-canine-local-dev-key}
@@ -73,8 +74,8 @@ canineai:
       canine-detector:
         name: ToothSeg
         version: v1.2.0
-        url: http://localhost:8002/api/v1/inference
-        fallback-url: http://localhost:8002/api/v1/inference
+        url: ${TOOTHSEG_COLAB_URL:https://mega-meetup-northeast-gordon.trycloudflare.com/predict/toothseg}
+        fallback-url: https://mega-meetup-northeast-gordon.trycloudflare.com/predict/toothseg
   session:
     timeout-minutes: ${SESSION_TIMEOUT_MINUTES:60}
     remember-me-days: ${REMEMBER_ME_DAYS:30}

@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 public class ModelSelector {
 
     private final ModelRegistry modelRegistry;
+    
+    @org.springframework.beans.factory.annotation.Value("${canineai.ai.colab-url}")
+    private String defaultColabUrl;
 
     /**
      * Resolves the configured model configuration matching a task type.
@@ -26,8 +29,8 @@ public class ModelSelector {
             endpoint = new ModelRegistry.ModelEndpoint();
             endpoint.setName("Dataset121_ToothFairy2_Teeth");
             endpoint.setVersion("1.0.0");
-            endpoint.setUrl("http://localhost:8002/api/v1/inference");
-            endpoint.setFallbackUrl("http://localhost:8002/api/v1/inference");
+            endpoint.setUrl(defaultColabUrl);
+            endpoint.setFallbackUrl(defaultColabUrl);
             endpoint.setTimeoutSeconds(1800);
         }
 

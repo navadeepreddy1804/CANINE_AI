@@ -68,8 +68,8 @@
                             <!-- Date of Birth -->
                             <div class="col-md-6">
                                 <label for="dob" class="form-label font-weight-bold small">Date of Birth</label>
-                                <input type="date" id="dob" name="dob" th:value="${patient.dob}" class="form-control" required />
-                                <div id="dob-error" class="invalid-feedback mt-1 small" style="display:none;">Date of birth is required</div>
+                                <input type="date" id="dob" name="dob" th:value="${patient.dob}" class="form-control" onclick="try{this.showPicker();}catch(e){}" required />
+                                <div id="dob-error" class="invalid-feedback mt-1 small" style="display:none;">Valid date of birth is required</div>
                             </div>
                             <!-- Blood Group -->
                             <div class="col-md-6">
@@ -131,6 +131,14 @@
     <div th:replace="~{fragments/components :: scripts}"></div>
     <script th:src="@{/js/patient.js}"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dobInput = document.getElementById('dob');
+            if (dobInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dobInput.setAttribute('max', today);
+            }
+        });
+
         // Prevent duplicate form submissions
         document.addEventListener('submit', function (e) {
             if (e.target.tagName.toLowerCase() === 'form') {

@@ -67,11 +67,11 @@ public class PatientController {
         Set<String> studyIds = studies.stream()
                 .map(study -> study.get("id"))
                 .filter(Objects::nonNull)
-                .map(Object::toString)
+                .map(o -> o.toString().toLowerCase(java.util.Locale.ROOT))
                 .collect(Collectors.toSet());
         List<Map<String, Object>> patientReports = backendClient.getReports(accessToken).stream()
                 .filter(report -> report.get("studyId") != null)
-                .filter(report -> studyIds.contains(report.get("studyId").toString()))
+                .filter(report -> studyIds.contains(report.get("studyId").toString().toLowerCase(java.util.Locale.ROOT)))
                 .collect(Collectors.toList());
 
         model.addAttribute("patient", patient);

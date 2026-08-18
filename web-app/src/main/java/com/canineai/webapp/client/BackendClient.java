@@ -873,6 +873,43 @@ public class BackendClient {
         }
     }
 
+    public void changePassword(String oldPassword, String newPassword, String accessToken) {
+        String url = baseUrl + "/auth/change-password";
+        log.info("Sending change-password request to backend: {}", url);
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            if (accessToken != null && !accessToken.isBlank()) {
+                headers.setBearerAuth(accessToken);
+            }
+
+            Map<String, String> payload = new HashMap<>();
+            payload.put("oldPassword", oldPassword);
+            payload.put("newPassword", newPassword);
+
+            HttpEntity<Map<String, String>> entity = new HttpEntity<>(payload, headers);
+
+            ResponseEntity<ApiResponse<Void>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.PUT,
+                    entity,
+                    new ParameterizedTypeReference<ApiResponse<Void>>() {}
+            );
+
+            if (response.getBody() != null && !response.getBody().isSuccess()) {
+                String msg = response.getBody().getMessage() != null ? response.getBody().getMessage() : "Failed to change password";
+                throw new RuntimeException(msg);
+            }
+        } catch (HttpStatusCodeException ex) {
+            String body = ex.getResponseBodyAsString();
+            log.error("Change password failed: {}", body);
+            throw new RuntimeException(extractErrorMessage(body, "Old password does not match original credentials."));
+        } catch (Exception e) {
+            log.error("Change password failed: {}", e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
     String extractErrorMessage(String body, String defaultMsg) {
         if (body == null || body.isBlank()) {
             return defaultMsg;

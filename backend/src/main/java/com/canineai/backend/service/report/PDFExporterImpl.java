@@ -128,6 +128,8 @@ public class PDFExporterImpl implements PDFExporter {
                             String cleanCell = col.trim().replace("**", "").replace("__", "");
                             PdfPCell cell = new PdfPCell(new Paragraph(cleanCell, tableHeaderFont));
                             cell.setBackgroundColor(new Color(14, 116, 144));
+                            cell.setBorderColor(new Color(14, 116, 144));
+                            cell.setBorderWidth(1.0f);
                             cell.setPadding(6);
                             currentTable.addCell(cell);
                         }
@@ -136,6 +138,8 @@ public class PDFExporterImpl implements PDFExporter {
                             String cleanCell = col.trim().replace("**", "").replace("__", "");
                             PdfPCell cell = new PdfPCell(new Paragraph(cleanCell, bodyFont));
                             cell.setBackgroundColor(new Color(248, 250, 252));
+                            cell.setBorderColor(new Color(203, 213, 225));
+                            cell.setBorderWidth(0.75f);
                             cell.setPadding(5);
                             currentTable.addCell(cell);
                         }

@@ -38,34 +38,23 @@ class RealInferenceServiceImplTest {
     @InjectMocks private RealInferenceServiceImpl inferenceService;
 
     @Test
-    void whenInferenceFails_studyStatusIsUpdatedToFailed() throws Exception {
+    void triggerInference_updatesJobStateToQueued() {
         UUID jobId = UUID.randomUUID();
         UUID studyId = UUID.randomUUID();
         AIJob job = AIJob.builder()
                 .id(jobId)
                 .studyId(studyId)
-                .state(JobState.QUEUED)
+                .state(JobState.CLAIMED)
                 .taskType(com.canineai.backend.entity.AiTaskType.CBCT_SEGMENTATION)
-                .build();
-        Study study = Study.builder()
-                .id(studyId)
-                .status(StudyStatus.ANALYSIS_RUNNING)
                 .build();
 
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
-        when(modelSelector.selectModel(any())).thenThrow(new RuntimeException("Simulated connection failure to FastAPI"));
-
-        CountDownLatch latch = new CountDownLatch(1);
-        doAnswer(inv -> {
-            latch.countDown();
-            return null;
-        }).when(inferenceHelper).updateJobState(eq(jobId), eq(JobState.FAILED), anyInt(), anyString(), any(), any(), any());
 
         inferenceService.triggerInference(jobId);
 
-        boolean completed = latch.await(3, TimeUnit.SECONDS);
-        assertThat(completed).isTrue();
-
-        verify(inferenceHelper, atLeastOnce()).updateJobState(eq(jobId), eq(JobState.FAILED), eq(0), eq("Failed"), isNull(), anyString(), eq(com.canineai.backend.entity.PredictionSource.REAL));
+        verify(jobRepository).save(job);
+        assertThat(job.getState()).isEqualTo(JobState.QUEUED);
+        assertThat(job.getProgressPercentage()).isEqualTo(10);
+        assertThat(job.getCurrentStage()).isEqualTo("QUEUED");
     }
 }

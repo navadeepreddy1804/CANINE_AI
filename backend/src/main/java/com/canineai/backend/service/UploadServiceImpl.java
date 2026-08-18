@@ -364,12 +364,14 @@ public class UploadServiceImpl implements UploadService {
                         }
                     }
                     ProcessBuilder pb = new ProcessBuilder(
-                        "C:\\Users\\darsi\\Downloads\\CANINE_AI\\ai-service\\.venv\\Scripts\\python.exe",
+                        "python",
                         "C:\\Users\\darsi\\Downloads\\CANINE_AI\\ai-service\\extract_slices.py",
                         fullPath
                     );
                     pb.redirectErrorStream(true);
-                    pb.start();
+                    Process p = pb.start();
+                    boolean finished = p.waitFor(15, java.util.concurrent.TimeUnit.SECONDS);
+                    log.info("Slice preview extraction process finished: {}", finished);
                 } catch (Exception ex) {
                     log.error("Failed to run extract_slices.py", ex);
                 }
@@ -392,26 +394,7 @@ public class UploadServiceImpl implements UploadService {
                 series.setCreatedBy(session.getUsername() != null ? session.getUsername() : "System");
                 seriesRepository.save(series);
 
-                // Trigger representative slice previews extraction on FastAPI
-                log.info("Triggering slice previews extraction on FastAPI for study: {}", savedStudy.getId());
-                java.util.Map<String, String> payload = java.util.Map.of(
-                        "sessionId", session.getId().toString(),
-                        "studyId", savedStudy.getId().toString(),
-                        "storagePath", targetPath,
-                        "previewPath", studyStorage.getPreviewImagePaths()
-                );
-                
-                try {
-                    aiWebClient.post()
-                            .uri("http://localhost:8002/api/v1/preprocess/extract-previews")
-                            .bodyValue(payload)
-                            .retrieve()
-                            .bodyToMono(String.class)
-                            .block(java.time.Duration.ofSeconds(30));
-                    log.info("FastAPI slice previews extraction triggered and finished successfully.");
-                } catch (Exception ex) {
-                    log.error("Failed to run FastAPI slice previews extraction: {}", ex.getMessage());
-                }
+                // The python script already extracts slices locally, so we do not need to call the external preprocessing service.
 
                 updateSessionStatus(session.getId(), StudyStatus.COMPLETED);
                 log.info("Background upload processing completed successfully for session: {}", session.getId());

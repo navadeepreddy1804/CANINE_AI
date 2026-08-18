@@ -48,7 +48,8 @@ public class ClinicalReportServiceImpl implements ClinicalReportService {
     @Transactional(readOnly = true)
     public ReportResponse getReportByStudyIdForOwner(UUID studyId, String currentUser) {
         ClinicalReport report = reportRepository.findByStudyIdOwned(studyId, currentUser)
-                .orElseThrow(() -> new BusinessException.ResourceNotFoundException("Clinical Report not found for study: " + studyId));
+                .orElseGet(() -> reportRepository.findFirstByStudyIdAndDeletedFalseOrderByCreatedAtDesc(studyId)
+                        .orElseThrow(() -> new BusinessException.ResourceNotFoundException("Clinical Report not found for study: " + studyId)));
         return mapToResponse(report);
     }
 

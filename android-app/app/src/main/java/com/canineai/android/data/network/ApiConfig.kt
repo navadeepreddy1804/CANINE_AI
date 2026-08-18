@@ -4,7 +4,7 @@ import com.canineai.android.BuildConfig
 
 object ApiConfig {
     private const val DEFAULT_EMULATOR_BASE_URL = "http://10.0.2.2:8080/api/v1"
-    private const val DEFAULT_LAN_BASE_URL = "http://10.37.23.120:8080/api/v1"
+    private const val DEFAULT_LAN_BASE_URL = "http://172.27.101.120:8080/api/v1"
 
     fun resolveBaseUrl(
         configuredBaseUrl: String? = null,

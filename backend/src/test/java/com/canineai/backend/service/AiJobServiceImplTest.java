@@ -66,7 +66,7 @@ class AiJobServiceImplTest {
 
         when(jobRepository.findFirstByStudyIdAndDeletedFalseAndStateInOrderByCreatedAtDesc(
                 eq(studyId),
-                eq(List.of(JobState.QUEUED, JobState.RUNNING, JobState.COMPLETED))
+                eq(List.of(JobState.QUEUED, JobState.CLAIMED, JobState.RUNNING, JobState.COMPLETED))
         )).thenReturn(Optional.of(existingCompletedJob));
 
         AiJobRequest request = new AiJobRequest();
@@ -97,7 +97,7 @@ class AiJobServiceImplTest {
 
         when(jobRepository.findFirstByStudyIdAndDeletedFalseAndStateInOrderByCreatedAtDesc(
                 eq(studyId),
-                eq(List.of(JobState.QUEUED, JobState.RUNNING, JobState.COMPLETED))
+                eq(List.of(JobState.QUEUED, JobState.CLAIMED, JobState.RUNNING, JobState.COMPLETED))
         )).thenReturn(Optional.of(existingRunningJob));
 
         AiJobRequest request = new AiJobRequest();
@@ -121,7 +121,7 @@ class AiJobServiceImplTest {
         when(studyRepository.findById(studyId)).thenReturn(Optional.of(dummyStudy));
         when(jobRepository.findFirstByStudyIdAndDeletedFalseAndStateInOrderByCreatedAtDesc(
                 eq(studyId),
-                eq(List.of(JobState.QUEUED, JobState.RUNNING, JobState.COMPLETED))
+                eq(List.of(JobState.QUEUED, JobState.CLAIMED, JobState.RUNNING, JobState.COMPLETED))
         )).thenReturn(Optional.empty());
 
         ModelRegistry.ModelEndpoint endpoint = new ModelRegistry.ModelEndpoint();

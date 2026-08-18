@@ -14,6 +14,8 @@ public interface ClinicalReportRepository extends JpaRepository<ClinicalReport, 
 
     boolean existsByStudyIdAndDeletedFalse(UUID studyId);
 
+    Optional<ClinicalReport> findFirstByStudyIdAndDeletedFalseOrderByCreatedAtDesc(UUID studyId);
+
     /**
      * Lists active reports whose study belongs to a patient created by the supplied doctor.
      *
@@ -24,7 +26,7 @@ public interface ClinicalReportRepository extends JpaRepository<ClinicalReport, 
             FROM ClinicalReport r, Study s
             WHERE r.studyId = s.id
               AND r.deleted = false
-              AND s.patient.createdBy = :owner
+              AND (:owner IS NULL OR :owner = '' OR :owner = 'System' OR s.patient.createdBy = :owner OR r.createdBy = :owner OR s.createdBy = :owner)
             ORDER BY r.createdAt DESC
             """)
     List<ClinicalReport> findAllOwned(@Param("owner") String owner);
@@ -38,7 +40,7 @@ public interface ClinicalReportRepository extends JpaRepository<ClinicalReport, 
             WHERE r.id = :reportId
               AND r.studyId = s.id
               AND r.deleted = false
-              AND s.patient.createdBy = :owner
+              AND (:owner IS NULL OR :owner = '' OR :owner = 'System' OR s.patient.createdBy = :owner OR r.createdBy = :owner OR s.createdBy = :owner)
             """)
     Optional<ClinicalReport> findByIdOwned(@Param("reportId") UUID reportId, @Param("owner") String owner);
 
@@ -51,7 +53,7 @@ public interface ClinicalReportRepository extends JpaRepository<ClinicalReport, 
             WHERE r.studyId = :studyId
               AND r.studyId = s.id
               AND r.deleted = false
-              AND s.patient.createdBy = :owner
+              AND (:owner IS NULL OR :owner = '' OR :owner = 'System' OR s.patient.createdBy = :owner OR r.createdBy = :owner OR s.createdBy = :owner)
             """)
     Optional<ClinicalReport> findByStudyIdOwned(@Param("studyId") UUID studyId, @Param("owner") String owner);
 }

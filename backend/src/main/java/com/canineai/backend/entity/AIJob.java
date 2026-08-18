@@ -59,6 +59,30 @@ public class AIJob extends BaseAuditableEntity {
     @Column(name = "error_message", length = 500)
     private String errorMessage;
 
+    @Column(name = "worker_id")
+    private String workerId;
+
+    @Column(name = "claimed_at")
+    private LocalDateTime claimedAt;
+
+    @Column(name = "lease_expiry")
+    private LocalDateTime leaseExpiry;
+
+    @Builder.Default
+    @Column(name = "retry_count", nullable = false)
+    private int retryCount = 0;
+
+    @Builder.Default
+    @Column(name = "max_retries", nullable = false)
+    private int maxRetries = 3;
+
+    @Column(name = "segmentation_file_path")
+    private String segmentationFilePath;
+
+    @Lob
+    @Column(name = "visualization_files_json", length = 2000)
+    private String visualizationFilesJson;
+
     @Version
     private Long version;
 }

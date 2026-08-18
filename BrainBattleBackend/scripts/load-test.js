@@ -5,8 +5,9 @@ export const options = {
   vus: 100,
   duration: '1m',
   thresholds: {
-    'http_req_failed': ['rate<0.05'], // failure rate under 5%
-    'http_req_duration': ['p(95)<1500'] // 95th percentile under 1.5 seconds
+    'http_reqs': ['rate>=100', 'count>=7000'],
+    'http_req_duration': ['avg<=300', 'p(95)<=500', 'max<=2000'],
+    'http_req_failed': ['rate<0.05'],
   }
 };
 

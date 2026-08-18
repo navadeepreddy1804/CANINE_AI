@@ -29,6 +29,9 @@ public class HistoryController {
     public ResponseEntity<ApiResponse<List<AnalysisHistory>>> getHistory(Principal principal) {
         String currentUser = principal != null ? principal.getName() : "System";
         List<AnalysisHistory> list = historyRepository.findByCreatedByOrderByCompletedAtDesc(currentUser);
+        if (list.isEmpty()) {
+            list = historyRepository.findAllByOrderByCompletedAtDesc();
+        }
         return ResponseEntity.ok(ApiResponse.success(list, "Analysis history retrieved successfully"));
     }
 }

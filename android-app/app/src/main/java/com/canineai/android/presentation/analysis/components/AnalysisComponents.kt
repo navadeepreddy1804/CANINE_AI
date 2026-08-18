@@ -108,6 +108,10 @@ fun StudyCbctViewer(
     onFocusCanine: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val totalSlices = if (state.totalSliceCount > 0) state.totalSliceCount else 12
+    val safeSliceIndex = state.currentSliceIndex.coerceIn(0, totalSlices - 1)
+    val displaySliceNumber = safeSliceIndex + 1
+
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
@@ -120,7 +124,7 @@ fun StudyCbctViewer(
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "Slice ${state.currentSliceIndex + 1} of ${state.totalSliceCount}",
+                text = "Slice $displaySliceNumber of $totalSlices",
                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -136,7 +140,7 @@ fun StudyCbctViewer(
             contentAlignment = Alignment.Center
         ) {
             val baseUrl = com.canineai.android.data.network.ApiConfig.resolveBaseUrl().removeSuffix("/")
-            val imageUrl = "$baseUrl/studies/${state.studyId}/previews/axial/${state.currentSliceIndex}"
+            val imageUrl = "$baseUrl/studies/${state.studyId}/previews/axial/$safeSliceIndex"
             
             AsyncImage(
                 model = imageUrl,
@@ -146,7 +150,7 @@ fun StudyCbctViewer(
             )
             
             // ToothSeg Prediction Overlay
-            val hasCanineOnSlice = state.boundingBoxSliceIndex == state.currentSliceIndex
+            val hasCanineOnSlice = state.boundingBoxSliceIndex == safeSliceIndex
             if (state.isCanineHighlighted && hasCanineOnSlice && state.boundingBoxWidth > 0f) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     val scaleX = size.width / 512f
@@ -180,9 +184,9 @@ fun StudyCbctViewer(
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(8.dp)
-                        .background(Color(0xFFDC2626), shape = RoundedCornerShape(4.dp))
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                        .padding(10.dp)
+                        .background(Color(0xCCDC2626), shape = RoundedCornerShape(6.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = "FDI ${state.canineFdi} • ${state.canineToothName}",
@@ -191,13 +195,13 @@ fun StudyCbctViewer(
                         fontWeight = FontWeight.Bold
                     )
                 }
-            } else if (state.isCanineHighlighted && state.boundingBoxSliceIndex != null && state.boundingBoxSliceIndex != state.currentSliceIndex) {
+            } else if (state.isCanineHighlighted && state.boundingBoxSliceIndex != null && state.boundingBoxSliceIndex != safeSliceIndex) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(8.dp)
-                        .background(Color(0xFF334155).copy(alpha = 0.85f), shape = RoundedCornerShape(4.dp))
-                        .padding(horizontal = 6.dp, vertical = 3.dp)
+                        .padding(10.dp)
+                        .background(Color(0xFF334155).copy(alpha = 0.9f), shape = RoundedCornerShape(6.dp))
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = "Canine on Slice ${(state.boundingBoxSliceIndex ?: 0) + 1}",
@@ -209,34 +213,37 @@ fun StudyCbctViewer(
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (state.boundingBoxSliceIndex != null) {
-                CanineButton(
-                    text = "Focus Canine",
-                    onClick = onFocusCanine,
-                    type = CanineButtonType.OUTLINED,
-                    modifier = Modifier.height(36.dp)
-                )
-            } else {
-                Spacer(modifier = Modifier.width(1.dp))
-            }
-
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Axial Slices", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = "Axial Slices",
+                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                val maxSliceRange = (if (totalSlices > 1) totalSlices - 1 else 1).toFloat()
                 Slider(
-                    value = state.currentSliceIndex.toFloat(),
+                    value = safeSliceIndex.toFloat(),
                     onValueChange = { onSliceIndexChanged(it.toInt()) },
-                    valueRange = 0f..(state.totalSliceCount - 1).toFloat(),
-                    modifier = Modifier.width(150.dp)
+                    valueRange = 0f..maxSliceRange,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            if (state.boundingBoxSliceIndex != null) {
+                CanineButton(
+                    text = "Focus Canine (Slice ${(state.boundingBoxSliceIndex ?: 0) + 1})",
+                    onClick = onFocusCanine,
+                    type = CanineButtonType.OUTLINED,
+                    modifier = Modifier.fillMaxWidth().height(40.dp)
                 )
             }
         }
@@ -248,6 +255,8 @@ fun ToothSegFindingsCard(
     state: AnalysisState,
     modifier: Modifier = Modifier
 ) {
+    val formattedCaseId = com.canineai.android.util.PredictionFormatter.formatCaseId(state.studyId)
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -262,7 +271,7 @@ fun ToothSegFindingsCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Section 1: Real ToothSeg Findings",
+                text = "Section 1: ToothSeg Findings",
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary
             )
@@ -271,8 +280,9 @@ fun ToothSegFindingsCard(
                 status = CanineStatus.SUCCESS
             )
         }
-        Divider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
 
+        ResultMetricRow(label = "Case ID", value = formattedCaseId)
         ResultMetricRow(label = "Canine Identified", value = state.canineToothName)
         ResultMetricRow(label = "FDI Tooth Label", value = "FDI ${state.canineFdi}")
         ResultMetricRow(label = "Quadrant / Sector", value = state.canineSector)
@@ -291,6 +301,8 @@ fun ClinicalDiagnosticCard(
     state: AnalysisState,
     modifier: Modifier = Modifier
 ) {
+    val formattedPrediction = com.canineai.android.util.PredictionFormatter.formatPrediction(state.clinicalDiagnosis)
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -305,7 +317,7 @@ fun ClinicalDiagnosticCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Section 2: Clinical Diagnostic Assessment",
+                text = "Section 2: Diagnostic Assessment",
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                 color = Color(0xFF15803D)
             )
@@ -315,9 +327,9 @@ fun ClinicalDiagnosticCard(
             )
         }
 
-        Divider(color = Color(0xFFBBF7D0))
+        HorizontalDivider(color = Color(0xFFBBF7D0))
 
-        ResultMetricRow(label = "Diagnostic Class", value = state.clinicalDiagnosis)
+        ResultMetricRow(label = "Diagnostic Prediction", value = formattedPrediction)
         ResultMetricRow(label = "Eruption Trajectory", value = state.eruptionDirection)
         ResultMetricRow(label = "Root Resorption Risk", value = state.rootResorptionRisk)
         ResultMetricRow(label = "Surgical Difficulty", value = state.surgicalDifficulty)

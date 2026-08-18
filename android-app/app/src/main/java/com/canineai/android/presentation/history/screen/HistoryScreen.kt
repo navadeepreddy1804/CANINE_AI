@@ -148,6 +148,10 @@ private fun HistoryRowCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val formattedPatientId = com.canineai.android.util.PatientIdFormatter.format(item.patientId, item.patientDisplayId)
+    val formattedCaseId = com.canineai.android.util.PredictionFormatter.formatCaseId(item.studyId, item.studyDisplayId)
+    val formattedPrediction = com.canineai.android.util.PredictionFormatter.formatPrediction(item.prediction)
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -167,7 +171,7 @@ private fun HistoryRowCard(
                         shape = MaterialTheme.shapes.small
                     ) {
                         Text(
-                            text = item.prediction ?: "COMPLETED",
+                            text = formattedPrediction,
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -189,9 +193,9 @@ private fun HistoryRowCard(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "Study: ${item.studyDisplayId ?: item.studyId ?: "N/A"} • Operator: ${item.createdBy ?: "System"}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                text = "Patient ID: $formattedPatientId • Case: $formattedCaseId",
+                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.primary
             )
 
             Spacer(modifier = Modifier.height(4.dp))

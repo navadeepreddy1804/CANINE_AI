@@ -192,11 +192,28 @@ fun CbctPreviewScreen(
                                 .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), MaterialTheme.shapes.medium),
                             contentAlignment = Alignment.Center
                         ) {
+                            val context = androidx.compose.ui.platform.LocalContext.current
+                            val imageRequest = remember(previewUrl) {
+                                coil.request.ImageRequest.Builder(context)
+                                    .data(previewUrl)
+                                    .crossfade(true)
+                                    .diskCachePolicy(coil.request.CachePolicy.DISABLED)
+                                    .memoryCachePolicy(coil.request.CachePolicy.DISABLED)
+                                    .build()
+                            }
                             coil.compose.SubcomposeAsyncImage(
-                                model = previewUrl,
+                                model = imageRequest,
                                 contentDescription = "CBCT Slice Preview",
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Fit,
+                                loading = {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                                    }
+                                },
                                 error = {
                                     Box(
                                         modifier = Modifier

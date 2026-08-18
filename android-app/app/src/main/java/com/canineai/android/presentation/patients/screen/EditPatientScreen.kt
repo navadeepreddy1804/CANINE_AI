@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -112,15 +113,41 @@ fun EditPatientScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // DOB
-                CanineTextField(
-                    value = state.inputDob,
-                    onValueChange = { viewModel.onEvent(PatientEvent.DobChanged(it)) },
-                    label = "Date of Birth",
-                    placeholder = "YYYY-MM-DD",
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // DOB with Calendar Picker
+                val context = androidx.compose.ui.platform.LocalContext.current
+                val calendar = java.util.Calendar.getInstance()
+                val datePickerDialog = remember {
+                    android.app.DatePickerDialog(
+                        context,
+                        { _, year, month, dayOfMonth ->
+                            val formatted = String.format(java.util.Locale.US, "%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                            viewModel.onEvent(PatientEvent.DobChanged(formatted))
+                        },
+                        calendar.get(java.util.Calendar.YEAR),
+                        calendar.get(java.util.Calendar.MONTH),
+                        calendar.get(java.util.Calendar.DAY_OF_MONTH)
+                    ).apply {
+                        datePicker.maxDate = System.currentTimeMillis()
+                    }
+                }
+
+                Box(modifier = Modifier.fillMaxWidth().clickable { datePickerDialog.show() }) {
+                    CanineTextField(
+                        value = state.inputDob,
+                        onValueChange = {},
+                        label = "Date of Birth",
+                        placeholder = "Select Date from Calendar",
+                        readOnly = true,
+                        trailingIcon = {
+                            CanineIconButton(
+                                icon = Icons.Default.DateRange,
+                                onClick = { datePickerDialog.show() },
+                                contentDescription = "Select Date of Birth"
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 

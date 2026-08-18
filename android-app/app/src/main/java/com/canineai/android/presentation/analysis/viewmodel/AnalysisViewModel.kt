@@ -176,7 +176,7 @@ class AnalysisViewModel @Inject constructor(
                     it.copy(
                         isRunning = true,
                         isComplete = false,
-                        pipelineStage = PipelineStage.VALIDATION,
+                        pipelineStage = PipelineStage.PREPARING,
                         progress = 0f,
                         elapsedTime = "00:00",
                         estimatedRemaining = "--:--",
@@ -214,14 +214,12 @@ class AnalysisViewModel @Inject constructor(
 
                     val currentStageStr = progressResp.currentStage.orEmpty().uppercase()
                     val stage = when {
-                        currentStageStr.contains("PREPROCESS") -> PipelineStage.PREPROCESSING
+                        currentStageStr.contains("PREPARING") || currentStageStr.contains("PREPARE") -> PipelineStage.PREPARING
+                        currentStageStr.contains("UPLOAD") || currentStageStr.contains("PROCESS") -> PipelineStage.PROCESSING
                         currentStageStr.contains("SEGMENT") -> PipelineStage.SEGMENTATION
-                        currentStageStr.contains("TOOTH_LOCALIZATION") || currentStageStr.contains("TOOTH LOCALIZATION") -> PipelineStage.TOOTH_LOCALIZATION
-                        currentStageStr.contains("CANINE") -> PipelineStage.CANINE_LOCALIZATION
-                        currentStageStr.contains("MEASURE") -> PipelineStage.MEASUREMENTS
-                        currentStageStr.contains("PREDICT") -> PipelineStage.PREDICTION
-                        currentStageStr.contains("REPORT") -> PipelineStage.REPORT_GEN
-                        else -> PipelineStage.VALIDATION
+                        currentStageStr.contains("CANINE") || currentStageStr.contains("LOCAT") -> PipelineStage.CANINE_LOCALIZATION
+                        currentStageStr.contains("COMPLETE") -> PipelineStage.COMPLETE
+                        else -> PipelineStage.PREPARING
                     }
 
                     android.util.Log.i("CanineAI", "[UI] Progress updated: $progressPercentage% - $stage")
@@ -437,7 +435,7 @@ class AnalysisViewModel @Inject constructor(
     private fun haltPipeline() {
         val jobId = activeJobId
         pipelineJob?.cancel()
-        _state.update { it.copy(isRunning = false, progress = 0f, pipelineStage = PipelineStage.VALIDATION) }
+        _state.update { it.copy(isRunning = false, progress = 0f, pipelineStage = PipelineStage.PREPARING) }
         if (jobId != null) {
             viewModelScope.launch {
                 try {

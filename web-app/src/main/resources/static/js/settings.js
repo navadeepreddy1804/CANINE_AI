@@ -99,4 +99,82 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
     });
+
+    // Change Password Form Submission
+    const changePasswordForm = document.getElementById("changePasswordForm");
+    const changePasswordAlert = document.getElementById("changePasswordAlert");
+    const btnSubmitChangePassword = document.getElementById("btnSubmitChangePassword");
+
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            
+            const oldPassword = document.getElementById("oldPasswordInput").value.trim();
+            const newPassword = document.getElementById("newPasswordInput").value.trim();
+            const confirmPassword = document.getElementById("confirmPasswordInput").value.trim();
+
+            changePasswordAlert.classList.add("d-none");
+            changePasswordAlert.textContent = "";
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                changePasswordAlert.textContent = "All password fields are required.";
+                changePasswordAlert.classList.remove("d-none");
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                changePasswordAlert.textContent = "New password must be at least 6 characters long.";
+                changePasswordAlert.classList.remove("d-none");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                changePasswordAlert.textContent = "New passwords do not match.";
+                changePasswordAlert.classList.remove("d-none");
+                return;
+            }
+
+            btnSubmitChangePassword.disabled = true;
+            btnSubmitChangePassword.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i>Updating Password...';
+
+            const formData = new URLSearchParams();
+            formData.append("oldPassword", oldPassword);
+            formData.append("newPassword", newPassword);
+
+            fetch('/settings/change-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+            .then(res => res.json().then(data => ({ status: res.status, body: data })))
+            .then(res => {
+                btnSubmitChangePassword.disabled = false;
+                btnSubmitChangePassword.innerHTML = '<i class="fa fa-save me-2"></i>Update Password';
+
+                if (res.body.success) {
+                    changePasswordForm.reset();
+                    const modalEl = document.getElementById('changePasswordModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+
+                    if (typeof CanineUI !== "undefined") {
+                        CanineUI.showToast("Account password updated successfully!", "success");
+                    } else {
+                        alert("Account password updated successfully!");
+                    }
+                } else {
+                    changePasswordAlert.textContent = res.body.message || "Failed to update password.";
+                    changePasswordAlert.classList.remove("d-none");
+                }
+            })
+            .catch(err => {
+                btnSubmitChangePassword.disabled = false;
+                btnSubmitChangePassword.innerHTML = '<i class="fa fa-save me-2"></i>Update Password';
+                changePasswordAlert.textContent = "An error occurred while communicating with the server.";
+                changePasswordAlert.classList.remove("d-none");
+            });
+        });
+    }
 });

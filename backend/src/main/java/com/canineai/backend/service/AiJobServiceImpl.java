@@ -27,25 +27,49 @@ public class AiJobServiceImpl implements AiJobService {
     private final StudyRepository studyRepository;
     private final ModelSelector modelSelector;
     private final InferenceService inferenceService;
+    private final DemoInferenceRunner demoInferenceRunner;
+
+    @org.springframework.beans.factory.annotation.Value("${canineai.ai.demo-mode:true}")
+    private boolean demoMode;
 
     @Override
     @Transactional
     public AiJobResponse submitJob(AiJobRequest request, String currentUser) {
-        log.info("Submitting AI diagnostics job for Study ID: {}", request.getStudyId());
+        log.info("Submitting AI diagnostics job for Study ID: {} (demoMode={})", request.getStudyId(), demoMode);
 
         // Check if study exists
         if (!studyRepository.existsById(request.getStudyId())) {
             throw new BusinessException.ResourceNotFoundException("Study not found: " + request.getStudyId());
         }
 
-        // Idempotency: Return existing completed or active job if present
+        // Idempotency / Fresh Run: In demoMode, reset and trigger a fresh 5-stage run
         java.util.Optional<AIJob> existingJob = jobRepository.findFirstByStudyIdAndDeletedFalseAndStateInOrderByCreatedAtDesc(
                 request.getStudyId(),
-                java.util.List.of(JobState.QUEUED, JobState.RUNNING, JobState.COMPLETED)
+                java.util.List.of(JobState.QUEUED, JobState.CLAIMED, JobState.RUNNING, JobState.COMPLETED)
         );
         if (existingJob.isPresent()) {
-            log.info("Returning existing AI job for Study ID: {} (State: {})", request.getStudyId(), existingJob.get().getState());
-            return mapToResponse(existingJob.get());
+            AIJob ej = existingJob.get();
+            if (demoMode) {
+                log.info("⚡ Starting fresh DEMO AI analysis run for Job ID: {}", ej.getId());
+                ej.setState(JobState.RUNNING);
+                ej.setCurrentStage("Preparing AI analysis");
+                ej.setProgressPercentage(15);
+                ej.setStartTime(LocalDateTime.now());
+                ej.setEndTime(null);
+                ej.setResultJson(null);
+                ej.setErrorMessage(null);
+                AIJob updated = jobRepository.save(ej);
+
+                studyRepository.findById(request.getStudyId()).ifPresent(study -> {
+                    study.setStatus(com.canineai.backend.entity.StudyStatus.ANALYSIS_RUNNING);
+                    studyRepository.save(study);
+                });
+
+                java.util.concurrent.CompletableFuture.runAsync(() -> demoInferenceRunner.executeDemoInferenceAsync(updated.getId()));
+                return mapToResponse(updated);
+            } else if (ej.getState() != JobState.CANCELLED && ej.getState() != JobState.FAILED) {
+                return mapToResponse(ej);
+            }
         }
 
         // Dynamically select model based on task type
@@ -58,6 +82,8 @@ public class AiJobServiceImpl implements AiJobService {
                 .activeModelName(endpoint.getName())
                 .modelVersion(endpoint.getVersion())
                 .progressPercentage(0)
+                .currentStage("Preparing AI analysis")
+                .predictionSource(demoMode ? com.canineai.backend.entity.PredictionSource.DEMO : com.canineai.backend.entity.PredictionSource.REAL)
                 .build();
         
         job.setCreatedBy(currentUser);
@@ -71,8 +97,13 @@ public class AiJobServiceImpl implements AiJobService {
         studyRepository.save(study);
         log.info("Study {} status transitioned to ANALYSIS_RUNNING", study.getId());
 
-        // Async execution of FastAPI inference
-        inferenceService.triggerInference(saved.getId());
+        if (demoMode) {
+            log.info("⚡ Executing DEMO AI analysis runner for Job ID: {}", saved.getId());
+            java.util.concurrent.CompletableFuture.runAsync(() -> demoInferenceRunner.executeDemoInferenceAsync(saved.getId()));
+        } else {
+            // Async execution of real FastAPI/Colab inference
+            inferenceService.triggerInference(saved.getId());
+        }
 
         return mapToResponse(saved);
     }
@@ -132,11 +163,23 @@ public class AiJobServiceImpl implements AiJobService {
         }
 
         job.setState(JobState.CANCELLED);
+        job.setCurrentStage("CANCELLED");
+        job.setProgressPercentage(0);
         job.setUpdatedBy(currentUser);
         job.setUpdatedAt(LocalDateTime.now());
         jobRepository.save(job);
 
-        inferenceService.cancelInference(jobId);
+        // Reset Study status so a new analysis can be started
+        studyRepository.findById(job.getStudyId()).ifPresent(study -> {
+            study.setStatus(com.canineai.backend.entity.StudyStatus.UPLOADED);
+            studyRepository.save(study);
+        });
+
+        try {
+            inferenceService.cancelInference(jobId);
+        } catch (Exception e) {
+            log.warn("Notice on inference cancellation: {}", e.getMessage());
+        }
     }
 
     @Override
