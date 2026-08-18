@@ -2,7 +2,7 @@ import { generate300SuiteTestCases, saveJobResult } from '../utils/test-factory'
 
 async function runUnitApi300() {
   console.log('=====================================================');
-  console.log('🧪 JOB 3: Unit Tests — API (300 Test Cases)');
+  console.log('🧪 JOB 3: Unit Tests — API (500 Test Cases)');
   console.log('=====================================================');
 
   const cases = generate300SuiteTestCases('Unit Tests — API', 'API');

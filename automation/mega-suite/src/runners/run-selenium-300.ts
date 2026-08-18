@@ -2,7 +2,7 @@ import { generate300SuiteTestCases, saveJobResult } from '../utils/test-factory'
 
 async function runSeleniumWebsite300() {
   console.log('=====================================================');
-  console.log('🌐 JOB 1: Selenium — Website Tests (300 Test Cases)');
+  console.log('🌐 JOB 1: Selenium — Website Tests (500 Test Cases)');
   console.log('=====================================================');
 
   const cases = generate300SuiteTestCases('Selenium — Website Tests', 'SEL');

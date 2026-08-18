@@ -100,7 +100,7 @@ export function generate300SuiteTestCases(suiteName: string, prefix: string): Te
   const cases: TestCaseItem[] = [];
   const baseList = suiteTestCases[prefix] || suiteTestCases['LOAD'];
 
-  for (let i = 1; i <= 300; i++) {
+  for (let i = 1; i <= 500; i++) {
     const pad = i < 10 ? `00${i}` : i < 100 ? `0${i}` : `${i}`;
     const tmpl = baseList[(i - 1) % baseList.length];
     
